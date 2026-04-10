@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Our Menu — Sree Saaj Events & Caterers</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+  <link href="static/css/neon.css" rel="stylesheet"/>
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet"/>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <style>
+    .scanline { position:fixed; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,transparent,rgba(255,0,64,0.3),transparent); animation:scanline 8s linear infinite; pointer-events:none; z-index:9999; opacity:0.4; }
+    .cat-tab { padding:0.6rem 1.4rem; border-radius:50px; cursor:pointer; font-size:0.85rem; font-weight:600; transition:all 0.3s; border:1px solid rgba(255,0,64,0.2); color:var(--text-muted); background:transparent; }
+    .cat-tab.active, .cat-tab:hover { background:var(--neon-red); color:#fff; border-color:var(--neon-red); box-shadow:0 0 15px var(--neon-red-glow); }
+    .menu-item { display:flex; align-items:center; gap:1rem; padding:1rem; border-radius:12px; transition:all 0.25s; }
+    .menu-item:hover { background:rgba(255,0,64,0.06); }
+    .item-icon { width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.4rem; background:rgba(255,0,64,0.1); border:1px solid rgba(255,0,64,0.2); flex-shrink:0; }
+    .veg-dot { width:10px; height:10px; border-radius:50%; border:1.5px solid; display:inline-block; }
+    .veg-dot.veg { border-color:#22c55e; background:#22c55e; }
+    .veg-dot.non-veg { border-color:#ef4444; background:#ef4444; }
+    .sadya-col { list-style:none; }
+    .sadya-col li { color:var(--text-muted); font-size:0.85rem; padding:0.3rem 0; border-bottom:1px solid rgba(255,255,255,0.05); }
+    .sadya-col li:last-child { border-bottom:none; }
+  </style>
+</head>
+<body class="grid-bg" x-data="menuApp()">
+<div class="scanline"></div>
+
+<!-- Navbar -->
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="index.html" class="navbar-brand">
+      <img src="static/images/saaj-logo.png" alt="Sree Saaj" style="height:40px;width:auto;filter:drop-shadow(0 0 8px rgba(255,0,64,0.5));"/>
+    </a>
+    <div class="navbar-links">
+      <a href="index.html">Home</a>
+      <a href="about.html">About</a>
+      <a href="services.html">Services</a>
+      <a href="menu.html" class="active">Menu</a>
+      <a href="gallery.html">Gallery</a>
+      <a href="booking.html">Booking</a>
+      <a href="estimator.html">Estimator</a>
+      <a href="login.html" class="btn-neon" style="padding:0.4rem 1.2rem;">Login</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section style="padding:7rem 1.5rem 3rem; text-align:center; position:relative; overflow:hidden;">
+  <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:600px;height:300px;background:radial-gradient(circle,rgba(255,0,64,0.12),transparent 70%);pointer-events:none;"></div>
+  <p class="neon-text-subtle" style="font-size:0.75rem;letter-spacing:0.3em;text-transform:uppercase;margin-bottom:1rem;" data-aos="fade-down">Authentic Flavours</p>
+  <h1 style="font-family:'Playfair Display',serif;font-size:clamp(2.5rem,6vw,4.5rem);font-weight:700;color:#fff;margin-bottom:1.5rem;" data-aos="fade-up">
+    Our <em style="color:var(--neon-red);text-shadow:0 0 30px rgba(255,0,64,0.5);">Menu</em>
+  </h1>
+  <p style="max-width:600px;margin:0 auto 2rem;color:var(--text-muted);font-size:1.1rem;line-height:1.8;" data-aos="fade-up" data-aos-delay="100">
+    From traditional Kerala Sadya to elaborate multi-cuisine buffets — we bring the finest flavours to your celebration.
+  </p>
+
+  <!-- Veg / Non-Veg Legend -->
+  <div style="display:flex;justify-content:center;gap:1.5rem;margin-bottom:1rem;">
+    <span style="display:flex;align-items:center;gap:0.5rem;color:var(--text-muted);font-size:0.85rem;"><span class="veg-dot veg"></span> Vegetarian</span>
+    <span style="display:flex;align-items:center;gap:0.5rem;color:var(--text-muted);font-size:0.85rem;"><span class="veg-dot non-veg"></span> Non-Vegetarian</span>
+  </div>
+</section>
+
+<!-- Category Tabs -->
+<div style="position:sticky;top:64px;z-index:40;background:rgba(10,10,15,0.9);backdrop-filter:blur(12px);padding:1rem 1.5rem;border-bottom:1px solid rgba(255,0,64,0.1);">
+  <div style="max-width:900px;margin:0 auto;display:flex;gap:0.75rem;flex-wrap:wrap;justify-content:center;">
+    <button class="cat-tab" :class="activeCategory === 'all' ? 'active' : ''" @click="activeCategory='all'">All</button>
+    <template x-for="cat in categories" :key="cat.id">
+      <button class="cat-tab" :class="activeCategory === cat.id ? 'active' : ''" @click="activeCategory=cat.id" x-text="cat.icon + ' ' + cat.name"></button>
+    </template>
+  </div>
+</div>
+
+<!-- Kerala Sadya Feature -->
+<section x-show="activeCategory === 'all' || activeCategory === 'sadya'" style="max-width:1100px;margin:3rem auto;padding:0 1.5rem;" data-aos="fade-up">
+  <div class="glass-strong" style="padding:2.5rem;position:relative;overflow:hidden;">
+    <div style="position:absolute;top:-50px;right:-50px;width:200px;height:200px;background:radial-gradient(circle,rgba(255,0,64,0.15),transparent);border-radius:50%;"></div>
+    <div style="display:grid;grid-template-columns:auto 1fr;gap:2rem;align-items:start;">
+      <div style="font-size:4rem;">🍌</div>
+      <div>
+        <span style="display:inline-block;background:rgba(255,0,64,0.1);border:1px solid rgba(255,0,64,0.3);color:var(--neon-red);font-size:0.7rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;padding:0.2rem 0.7rem;border-radius:20px;margin-bottom:0.5rem;">Signature</span>
+        <h2 style="font-family:'Playfair Display',serif;font-size:1.8rem;color:#fff;margin-bottom:0.5rem;">Traditional Kerala Sadya</h2>
+        <p style="color:var(--text-muted);margin-bottom:1.5rem;">The traditional Kerala feast served on banana leaf — a celebration of authentic Kerala cuisine with 20+ dishes.</p>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:0.5rem;">
+          <ul class="sadya-col">
+            <li>🟢 Parippu Curry</li><li>🟢 Sambar</li><li>🟢 Rasam</li><li>🟢 Pulisseri</li><li>🟢 Olan</li>
+          </ul>
+          <ul class="sadya-col">
+            <li>🟢 Avial</li><li>🟢 Thoran</li><li>🟢 Kichadi</li><li>🟢 Pachadi</li><li>🟢 Erissery</li>
+          </ul>
+          <ul class="sadya-col">
+            <li>🟢 Kaalan</li><li>🟢 Inji Puli</li><li>🟢 Banana Chips</li><li>🟢 Pappadam</li><li>🟢 Payasam (2 types)</li>
+          </ul>
+          <ul class="sadya-col">
+            <li>🟢 Steamed Rice</li><li>🟢 Pickle</li><li>🟢 Curd</li><li>🟢 Buttermilk</li><li>🟢 Banana</li>
+          </ul>
+        </div>
+        <div style="margin-top:1.5rem;">
+          <span style="color:var(--neon-red);font-weight:700;">₹350–₹550</span><span style="color:var(--text-muted);font-size:0.85rem;"> per person · Minimum 50 guests</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Menu Grid -->
+<div style="max-width:1100px;margin:0 auto;padding:0 1.5rem 4rem;">
+  <template x-for="cat in filteredCategories" :key="cat.id">
+    <div style="margin-bottom:3rem;" data-aos="fade-up">
+      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.5rem;">
+        <span style="font-size:1.5rem;" x-text="cat.icon"></span>
+        <h3 style="font-family:'Playfair Display',serif;font-size:1.4rem;color:#fff;" x-text="cat.name"></h3>
+        <div style="flex:1;height:1px;background:linear-gradient(to right,rgba(255,0,64,0.3),transparent);"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:0.5rem;">
+        <template x-for="item in cat.items" :key="item.name">
+          <div class="menu-item">
+            <div class="item-icon" x-text="item.icon"></div>
+            <div style="flex:1;">
+              <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.2rem;">
+                <span style="color:#fff;font-size:0.95rem;font-weight:500;" x-text="item.name"></span>
+                <span class="veg-dot" :class="item.veg ? 'veg' : 'non-veg'"></span>
+              </div>
+              <div style="color:var(--text-muted);font-size:0.8rem;" x-text="item.desc"></div>
+            </div>
+          </div>
+        </template>
+      </div>
+    </div>
+  </template>
+</div>
+
+<!-- Packages -->
+<section style="background:rgba(255,0,64,0.03);border-top:1px solid rgba(255,0,64,0.1);border-bottom:1px solid rgba(255,0,64,0.1);padding:5rem 1.5rem;">
+  <div style="max-width:1100px;margin:0 auto;">
+    <div style="text-align:center;margin-bottom:3rem;" data-aos="fade-up">
+      <p class="neon-text-subtle" style="font-size:0.75rem;letter-spacing:0.2em;text-transform:uppercase;margin-bottom:0.8rem;">Catering Packages</p>
+      <h2 style="font-family:'Playfair Display',serif;font-size:2.2rem;color:#fff;">Choose Your Package</h2>
+      <p style="color:var(--text-muted);margin-top:0.5rem;">All packages include serving staff, crockery & cutlery, and setup/cleanup.</p>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.5rem;">
+      <template x-for="pkg in packages" :key="pkg.name">
+        <div class="glass" :class="pkg.featured ? 'neon-border' : ''" style="padding:2rem;text-align:center;position:relative;" data-aos="fade-up">
+          <div x-show="pkg.featured" style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--neon-red);color:#fff;font-size:0.7rem;font-weight:700;padding:0.25rem 0.75rem;border-radius:20px;white-space:nowrap;">MOST POPULAR</div>
+          <div style="font-size:2.5rem;margin-bottom:0.5rem;" x-text="pkg.icon"></div>
+          <h3 style="font-family:'Playfair Display',serif;color:#fff;font-size:1.3rem;margin-bottom:0.5rem;" x-text="pkg.name"></h3>
+          <div style="color:var(--neon-red);font-size:1.8rem;font-weight:700;margin-bottom:0.3rem;" x-text="'₹' + pkg.price"></div>
+          <div style="color:var(--text-muted);font-size:0.8rem;margin-bottom:1.5rem;">per person</div>
+          <ul style="list-style:none;text-align:left;margin-bottom:1.5rem;">
+            <template x-for="f in pkg.features" :key="f">
+              <li style="color:var(--text-muted);font-size:0.85rem;padding:0.3rem 0;display:flex;align-items:center;gap:0.5rem;">
+                <span style="color:var(--neon-red);">✓</span><span x-text="f"></span>
+              </li>
+            </template>
+          </ul>
+          <a href="booking.html" class="btn-neon-solid" style="display:block;text-align:center;">Book Package</a>
+        </div>
+      </template>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section style="padding:4rem 1.5rem;text-align:center;">
+  <h2 style="font-family:'Playfair Display',serif;font-size:2rem;color:#fff;margin-bottom:1rem;" data-aos="fade-up">Custom Menu for Your Event?</h2>
+  <p style="color:var(--text-muted);margin-bottom:2rem;" data-aos="fade-up" data-aos-delay="100">Our chefs can create a completely customized menu for your event. Chat with us!</p>
+  <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+    <a href="https://wa.me/918075707566?text=Hello! I'd like to discuss a custom menu for my event." target="_blank"
+       style="display:inline-flex;align-items:center;gap:0.5rem;background:#25d366;color:#fff;padding:0.8rem 1.8rem;border-radius:50px;font-weight:700;text-decoration:none;">
+       💬 Discuss Custom Menu
+    </a>
+    <a href="booking.html" class="btn-neon">Book Catering</a>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer style="background:rgba(0,0,0,0.5);border-top:1px solid rgba(255,0,64,0.15);padding:2rem 1.5rem;text-align:center;">
+  <a href="index.html" style="display:inline-flex;align-items:center;gap:0.75rem;text-decoration:none;margin-bottom:1rem;">
+    <div class="logo-badge">SAAJ</div>
+    <span style="font-family:'Playfair Display',serif;color:var(--neon-red);font-weight:700;">Sree Saaj Events & Caterers</span>
+  </a>
+  <p style="color:var(--text-muted);font-size:0.85rem;">© 2024 Sree Saaj Events & Caterers. All rights reserved.</p>
+</footer>
+
+<!-- WhatsApp Float -->
+<a href="https://wa.me/918075707566" target="_blank" class="whatsapp-float">
+  <svg width="28" height="28" fill="white" viewBox="0 0 24 24">
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+  </svg>
+</a>
+
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+  AOS.init({ duration:700, once:true });
+  function menuApp() {
+    return {
+      activeCategory: 'all',
+      categories: [
+        { id:'sadya', name:'Kerala Sadya', icon:'🍌' },
+        { id:'starters', name:'Starters', icon:'🥗' },
+        { id:'mains', name:'Main Course', icon:'🍛' },
+        { id:'breads', name:'Breads & Rice', icon:'🍚' },
+        { id:'desserts', name:'Desserts', icon:'🍮' },
+        { id:'beverages', name:'Beverages', icon:'🥤' },
+      ],
+      get filteredCategories() {
+        if (this.activeCategory === 'all') return this.menuData;
+        return this.menuData.filter(c => c.id === this.activeCategory);
+      },
+      menuData: [
+        {
+          id:'starters', name:'Starters & Snacks', icon:'🥗',
+          items:[
+            { icon:'🍢', name:'Chicken 65', desc:'Spicy deep-fried chicken', veg:false },
+            { icon:'🥟', name:'Veg Cutlet', desc:'Crispy mixed vegetable cutlet', veg:true },
+            { icon:'🍤', name:'Prawn Fry', desc:'Fresh prawns, coastal spices', veg:false },
+            { icon:'🥙', name:'Gobi Manchurian', desc:'Crispy cauliflower in tangy sauce', veg:true },
+            { icon:'🫕', name:'Beef Ularthiyathu', desc:'Kerala style dry beef roast', veg:false },
+            { icon:'🧅', name:'Onion Pakoda', desc:'Golden crispy onion fritters', veg:true },
+            { icon:'🍗', name:'Tandoori Chicken', desc:'Clay oven roasted chicken', veg:false },
+            { icon:'🫚', name:'Paneer Tikka', desc:'Grilled cottage cheese skewers', veg:true },
+          ]
+        },
+        {
+          id:'mains', name:'Main Course', icon:'🍛',
+          items:[
+            { icon:'🍛', name:'Kerala Fish Curry', desc:'Kudampuli based authentic curry', veg:false },
+            { icon:'🫕', name:'Chicken Curry', desc:'Kerala spiced chicken gravy', veg:false },
+            { icon:'🥘', name:'Kadala Curry', desc:'Black chickpea in coconut gravy', veg:true },
+            { icon:'🍲', name:'Mutton Masala', desc:'Slow cooked mutton in thick masala', veg:false },
+            { icon:'🥗', name:'Paneer Butter Masala', desc:'Creamy tomato-based paneer curry', veg:true },
+            { icon:'🫙', name:'Sambar', desc:'Lentil vegetable stew', veg:true },
+            { icon:'🦐', name:'Prawn Masala', desc:'Spicy coastal prawn curry', veg:false },
+            { icon:'🥬', name:'Avial', desc:'Mixed vegetables in coconut yogurt', veg:true },
+          ]
+        },
+        {
+          id:'breads', name:'Breads & Rice', icon:'🍚',
+          items:[
+            { icon:'🍚', name:'Steamed Rice', desc:'Kerala matta rice (red rice)', veg:true },
+            { icon:'🫓', name:'Pathiri', desc:'Rice flour flatbread', veg:true },
+            { icon:'🥐', name:'Appam', desc:'Lacey rice hoppers', veg:true },
+            { icon:'🫔', name:'Kerala Paratha', desc:'Layered flaky flatbread', veg:true },
+            { icon:'🍙', name:'Ghee Rice', desc:'Fragrant basmati with ghee', veg:true },
+            { icon:'🍱', name:'Chicken Biryani', desc:'Malabar style dum biryani', veg:false },
+            { icon:'🧆', name:'Vegetable Biryani', desc:'Aromatic veg dum biryani', veg:true },
+            { icon:'🫓', name:'Naan', desc:'Tandoor baked soft bread', veg:true },
+          ]
+        },
+        {
+          id:'desserts', name:'Desserts & Sweets', icon:'🍮',
+          items:[
+            { icon:'🍮', name:'Payasam', desc:'Rice/vermicelli in coconut milk (2 varieties)', veg:true },
+            { icon:'🍰', name:'Halwa', desc:'Kerala wheat/carrot halwa', veg:true },
+            { icon:'🧁', name:'Gulab Jamun', desc:'Soft dumplings in rose syrup', veg:true },
+            { icon:'🍨', name:'Ice Cream', desc:'Assorted premium flavours', veg:true },
+            { icon:'🍯', name:'Ada Pradhaman', desc:'Rice ada in jaggery coconut milk', veg:true },
+            { icon:'🍡', name:'Unniyappam', desc:'Sweet rice fritters with jaggery', veg:true },
+          ]
+        },
+        {
+          id:'beverages', name:'Beverages', icon:'🥤',
+          items:[
+            { icon:'🍹', name:'Tender Coconut', desc:'Fresh tender coconut water', veg:true },
+            { icon:'🧃', name:'Fresh Juice', desc:'Seasonal fruit juices', veg:true },
+            { icon:'🍵', name:'Masala Tea', desc:'Spiced chai', veg:true },
+            { icon:'☕', name:'Filter Coffee', desc:'South Indian filter coffee', veg:true },
+            { icon:'🥛', name:'Buttermilk', desc:'Spiced chilled moru', veg:true },
+            { icon:'🧉', name:'Lemonade', desc:'Freshly squeezed with mint', veg:true },
+          ]
+        },
+      ],
+      packages: [
+        {
+          name:'Basic', icon:'🌿', price:'350', featured:false,
+          features:['Sadya / veg menu','20 dishes','Serving staff included','Banana leaf serving','Minimum 100 guests']
+        },
+        {
+          name:'Standard', icon:'⭐', price:'550', featured:true,
+          features:['Veg + Non-veg options','30+ dishes','Live cooking counter','Crockery & cutlery','Minimum 50 guests','Dessert counter']
+        },
+        {
+          name:'Premium', icon:'👑', price:'800', featured:false,
+          features:['Full multi-cuisine buffet','50+ items','Multiple live counters','Welcome drinks','Custom menu design','Any event size']
+        },
+      ]
+    };
+  }
+</script>
+</body>
+</html>

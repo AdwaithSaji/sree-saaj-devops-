@@ -1,0 +1,264 @@
+name: CD — Deploy to AKS
+
+on:
+  # Auto-trigger when CI completes successfully on main
+  workflow_run:
+    workflows: ["CI — Build & Push to ACR"]
+    types: [completed]
+    branches: [main]
+
+  # Manual trigger with optional image tag override
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "Image tag to deploy (default: sha of HEAD)"
+        required: false
+        default: ""
+      environment:
+        description: "Target environment"
+        required: true
+        default: production
+        type: choice
+        options: [production, staging]
+
+# Only one CD run at a time per environment
+concurrency:
+  group: cd-${{ github.event.inputs.environment || 'production' }}
+  cancel-in-progress: false   # Never cancel an in-progress deploy — wait for it
+
+env:
+  ACR_LOGIN_SERVER:   ${{ secrets.ACR_LOGIN_SERVER }}
+  IMAGE_PREFIX:       sreesaaj
+  K8S_NAMESPACE:      sreesaaj
+  # Short SHA used as the canonical image tag
+  # workflow_run: use the SHA of the triggering workflow's commit
+  # workflow_dispatch: use HEAD or the user-supplied tag
+  IMAGE_TAG: >-
+    ${{
+      github.event.inputs.image_tag != '' && github.event.inputs.image_tag
+      || format('sha-{0}', github.event_name == 'workflow_run'
+          && github.event.workflow_run.head_sha
+          || github.sha)
+    }}
+
+jobs:
+  # ── Guard: only proceed if CI passed ─────────────────────────────────────
+  check-ci:
+    name: Guard — CI must have passed
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+    steps:
+      - name: CI status check
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_run" ]]; then
+            echo "CI conclusion: ${{ github.event.workflow_run.conclusion }}"
+            echo "Triggered by commit: ${{ github.event.workflow_run.head_sha }}"
+          else
+            echo "Manual dispatch — skipping CI check"
+          fi
+          echo "Image tag to deploy: ${{ env.IMAGE_TAG }}"
+
+
+  # ── Deploy ────────────────────────────────────────────────────────────────
+  deploy:
+    name: Deploy to ${{ github.event.inputs.environment || 'production' }}
+    runs-on: ubuntu-latest
+    needs: check-ci
+    environment: production     # Requires environment approval in GitHub Settings
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # ── Resolve image tag ─────────────────────────────────────────────────
+      - name: Set IMAGE_TAG env
+        run: |
+          # If manual dispatch with explicit tag, use it; otherwise compute short SHA
+          if [[ -n "${{ github.event.inputs.image_tag }}" ]]; then
+            echo "IMAGE_TAG=${{ github.event.inputs.image_tag }}" >> $GITHUB_ENV
+          elif [[ "${{ github.event_name }}" == "workflow_run" ]]; then
+            SHORT="${{ github.event.workflow_run.head_sha }}"
+            echo "IMAGE_TAG=sha-${SHORT:0:7}" >> $GITHUB_ENV
+          else
+            echo "IMAGE_TAG=sha-${GITHUB_SHA:0:7}" >> $GITHUB_ENV
+          fi
+
+      - name: Show resolved image tag
+        run: echo "Deploying image tag → $IMAGE_TAG"
+
+      # ── Azure authentication ───────────────────────────────────────────────
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # ── Configure kubectl for AKS ─────────────────────────────────────────
+      - name: Set AKS context
+        uses: azure/aks-set-context@v4
+        with:
+          resource-group: ${{ secrets.AKS_RESOURCE_GROUP }}
+          cluster-name:   ${{ secrets.AKS_CLUSTER_NAME }}
+
+      - name: Verify cluster connectivity
+        run: |
+          kubectl cluster-info
+          echo ""
+          kubectl get nodes -o wide
+
+      # ── Apply infrastructure manifests ────────────────────────────────────
+      - name: Apply Namespace
+        run: kubectl apply -f infrastructure/kubernetes/namespace.yaml
+
+      - name: Apply ConfigMap
+        run: kubectl apply -f infrastructure/kubernetes/configmap.yaml
+
+      - name: Apply Secrets
+        run: kubectl apply -f infrastructure/kubernetes/secrets.yaml
+        # NOTE: Secrets should be managed via Azure Key Vault + CSI Driver
+        # in a full production setup. For university/demo this applies them directly.
+
+      - name: Apply PersistentVolumeClaims
+        run: kubectl apply -f infrastructure/kubernetes/storage.yaml
+
+      # ── Build patched deployment manifests and apply ───────────────────────
+      # Patch image references to point to ACR with the resolved image tag
+      # before applying. Original files are not modified.
+      - name: Patch and apply deployment manifests
+        run: |
+          SERVICES="api-gateway auth-service event-service inventory-service billing-service gallery-service menu-service frontend"
+          STAGING_DIR=$(mktemp -d)
+          cp -r infrastructure/kubernetes/deployments/. "$STAGING_DIR/"
+
+          for svc in $SERVICES; do
+            MANIFEST="$STAGING_DIR/${svc}-deployment.yaml"
+            if [[ -f "$MANIFEST" ]]; then
+              # Replace any image reference for this service with the ACR tag
+              sed -i \
+                "s|image:.*/${svc}:.*|image: ${ACR_LOGIN_SERVER}/${IMAGE_PREFIX}/${svc}:${IMAGE_TAG}|g" \
+                "$MANIFEST"
+              echo "Applying $svc → ${ACR_LOGIN_SERVER}/${IMAGE_PREFIX}/${svc}:${IMAGE_TAG}"
+              kubectl apply -f "$MANIFEST"
+            else
+              echo "WARNING: manifest not found for $svc — skipping"
+            fi
+          done
+          rm -rf "$STAGING_DIR"
+
+      # ── Apply remaining manifests ──────────────────────────────────────────
+      - name: Apply Services
+        run: kubectl apply -f infrastructure/kubernetes/services/all-services.yaml
+
+      - name: Apply Ingress
+        run: kubectl apply -f infrastructure/kubernetes/ingress.yaml
+
+      - name: Apply HPA
+        run: kubectl apply -f infrastructure/kubernetes/hpa.yaml
+
+
+  # ── Verify rollout health ─────────────────────────────────────────────────
+  verify:
+    name: Verify Rollout Health
+    runs-on: ubuntu-latest
+    needs: deploy
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Set AKS context
+        uses: azure/aks-set-context@v4
+        with:
+          resource-group: ${{ secrets.AKS_RESOURCE_GROUP }}
+          cluster-name:   ${{ secrets.AKS_CLUSTER_NAME }}
+
+      - name: Wait for all deployments to roll out
+        run: |
+          SERVICES="api-gateway auth-service event-service inventory-service billing-service gallery-service menu-service frontend"
+          FAILED=()
+          for svc in $SERVICES; do
+            echo "⏳ Waiting for $svc ..."
+            if kubectl rollout status deployment/$svc \
+                --namespace $K8S_NAMESPACE \
+                --timeout=300s; then
+              echo "✅ $svc is ready"
+            else
+              echo "❌ $svc rollout failed"
+              FAILED+=("$svc")
+            fi
+          done
+
+          if [ ${#FAILED[@]} -gt 0 ]; then
+            echo ""
+            echo "The following deployments failed to roll out: ${FAILED[*]}"
+            exit 1
+          fi
+
+      - name: Print final pod status
+        if: always()
+        run: |
+          echo "=== Pods ==="
+          kubectl get pods -n $K8S_NAMESPACE -o wide
+          echo ""
+          echo "=== Services ==="
+          kubectl get services -n $K8S_NAMESPACE
+          echo ""
+          echo "=== Ingress ==="
+          kubectl get ingress -n $K8S_NAMESPACE
+
+      - name: Azure logout
+        if: always()
+        run: az logout
+
+
+  # ── Rollback on verify failure ────────────────────────────────────────────
+  rollback:
+    name: Rollback on Failure
+    runs-on: ubuntu-latest
+    needs: verify
+    if: failure()
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Set AKS context
+        uses: azure/aks-set-context@v4
+        with:
+          resource-group: ${{ secrets.AKS_RESOURCE_GROUP }}
+          cluster-name:   ${{ secrets.AKS_CLUSTER_NAME }}
+
+      - name: Roll back all deployments to previous revision
+        run: |
+          SERVICES="api-gateway auth-service event-service inventory-service billing-service gallery-service menu-service frontend"
+          for svc in $SERVICES; do
+            echo "Rolling back $svc..."
+            kubectl rollout undo deployment/$svc --namespace $K8S_NAMESPACE || true
+          done
+
+      - name: Wait for rollback to complete
+        run: |
+          SERVICES="api-gateway auth-service event-service inventory-service billing-service gallery-service menu-service frontend"
+          for svc in $SERVICES; do
+            kubectl rollout status deployment/$svc \
+              --namespace $K8S_NAMESPACE \
+              --timeout=120s || true
+          done
+
+      - name: Log rollback event
+        run: |
+          echo "ROLLBACK triggered for commit ${{ github.sha }}"
+          echo "Rolled back at: $(date -u)"
+          kubectl get pods -n $K8S_NAMESPACE
+
+      - name: Azure logout
+        if: always()
+        run: az logout

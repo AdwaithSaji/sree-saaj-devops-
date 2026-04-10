@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Billing — Sree Saaj Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+  <link href="../static/css/neon.css" rel="stylesheet"/>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <style>
+    body { background:var(--bg-primary); }
+    .sidebar { width:240px; background:rgba(255,255,255,0.03); border-right:1px solid rgba(255,0,64,0.15); position:fixed; inset-y:0; left:0; z-index:40; display:flex; flex-direction:column; }
+    .main-area { flex:1; margin-left:240px; display:flex; flex-direction:column; }
+    .topbar { background:rgba(10,10,15,0.9); backdrop-filter:blur(12px); border-bottom:1px solid rgba(255,0,64,0.1); padding:1rem 1.5rem; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:30; }
+    .nav-link { display:flex; align-items:center; gap:0.75rem; padding:0.7rem 1rem; border-radius:10px; color:var(--text-muted); font-size:0.875rem; font-weight:500; text-decoration:none; transition:all 0.2s; }
+    .nav-link:hover { background:rgba(255,0,64,0.08); color:#fff; }
+    .nav-link.active { background:rgba(255,0,64,0.15); color:var(--neon-red); border-left:2px solid var(--neon-red); }
+    input, select, textarea { background:rgba(255,255,255,0.05); border:1px solid rgba(255,0,64,0.2); color:#fff; border-radius:10px; padding:0.6rem 1rem; font-size:0.9rem; outline:none; transition:border-color 0.2s; }
+    input:focus, select:focus, textarea:focus { border-color:var(--neon-red); }
+    input::placeholder, textarea::placeholder { color:var(--text-muted); }
+    select option { background:#1a1a2e; }
+    .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:100; display:flex; align-items:center; justify-content:center; padding:1rem; }
+    .modal-box { background:#0f0f1a; border:1px solid rgba(255,0,64,0.25); border-radius:20px; padding:2rem; max-width:640px; width:100%; max-height:90vh; overflow-y:auto; }
+    .invoice-line { display:grid; grid-template-columns:1fr auto auto; gap:1rem; align-items:center; padding:0.5rem 0; border-bottom:1px solid rgba(255,255,255,0.05); }
+    .badge-paid { background:rgba(34,197,94,0.15); color:#4ade80; }
+    .badge-pending { background:rgba(245,158,11,0.15); color:#f59e0b; }
+    .badge-partial { background:rgba(96,165,250,0.15); color:#60a5fa; }
+    .badge-cancelled { background:rgba(107,114,128,0.15); color:#9ca3af; }
+    .status-badge { display:inline-block; padding:0.2rem 0.6rem; border-radius:20px; font-size:0.72rem; font-weight:700; }
+  </style>
+</head>
+<body x-data="billingAdmin()" style="display:flex;min-height:100vh;">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div style="padding:1.5rem 1rem;border-bottom:1px solid rgba(255,0,64,0.1);">
+      <a href="../index.html" style="display:flex;align-items:center;gap:0.75rem;text-decoration:none;">
+        <img src="../static/images/saaj-logo.png" alt="Sree Saaj" style="height:36px;width:auto;filter:drop-shadow(0 0 6px rgba(255,0,64,0.5));" />
+        <div>
+          <div style="font-family:'Playfair Display',serif;color:var(--neon-red);font-size:0.95rem;font-weight:700;">Sree Saaj</div>
+          <div style="color:var(--text-muted);font-size:0.7rem;">Admin Panel</div>
+        </div>
+      </a>
+    </div>
+    <nav style="flex:1;padding:1rem;overflow-y:auto;">
+      <a href="dashboard.html" class="nav-link">📊 Dashboard</a>
+      <a href="events.html" class="nav-link">📅 Events</a>
+      <a href="#" class="nav-link">📋 Bookings</a>
+      <a href="inventory.html" class="nav-link">📦 Inventory</a>
+      <a href="billing.html" class="nav-link active">💰 Billing</a>
+      <a href="staff.html" class="nav-link">👥 Staff</a>
+      <div style="height:1px;background:rgba(255,0,64,0.1);margin:0.75rem 0;"></div>
+      <a href="../gallery.html" class="nav-link">🖼️ Gallery</a>
+      <a href="../menu.html" class="nav-link">🍽️ Menu</a>
+      <div style="height:1px;background:rgba(255,0,64,0.1);margin:0.75rem 0;"></div>
+      <a href="../index.html" class="nav-link">🌐 View Website</a>
+    </nav>
+    <div style="padding:1rem;border-top:1px solid rgba(255,0,64,0.1);">
+      <div style="display:flex;align-items:center;gap:0.75rem;">
+        <div style="width:34px;height:34px;border-radius:50%;background:rgba(255,0,64,0.15);border:1px solid rgba(255,0,64,0.3);display:flex;align-items:center;justify-content:center;color:var(--neon-red);font-weight:700;font-size:0.85rem;" x-text="user?.full_name?.charAt(0)||'A'"></div>
+        <div style="flex:1;"><div style="color:#fff;font-size:0.85rem;" x-text="user?.full_name||'Admin'"></div><div style="color:var(--neon-red);font-size:0.7rem;">admin</div></div>
+        <button @click="logout()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;">⏏</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main-area">
+    <header class="topbar">
+      <div>
+        <h1 style="font-family:'Playfair Display',serif;font-size:1.3rem;color:#fff;">Billing & Invoices</h1>
+        <p style="color:var(--text-muted);font-size:0.75rem;">Manage invoices and payment tracking</p>
+      </div>
+      <button @click="openModal()" class="btn-neon-solid" style="padding:0.6rem 1.2rem;font-size:0.85rem;">+ New Invoice</button>
+    </header>
+
+    <main style="flex:1;padding:1.5rem;">
+      <!-- Revenue Summary -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:1.5rem;">
+        <div class="glass" style="padding:1.25rem;text-align:center;">
+          <div style="font-size:1.6rem;font-weight:700;color:var(--neon-red);" x-text="'₹' + totalRevenue.toLocaleString('en-IN')"></div>
+          <div style="color:var(--text-muted);font-size:0.8rem;">Total Revenue</div>
+        </div>
+        <div class="glass" style="padding:1.25rem;text-align:center;">
+          <div style="font-size:1.6rem;font-weight:700;color:#4ade80;" x-text="'₹' + paidAmount.toLocaleString('en-IN')"></div>
+          <div style="color:var(--text-muted);font-size:0.8rem;">Received</div>
+        </div>
+        <div class="glass" style="padding:1.25rem;text-align:center;">
+          <div style="font-size:1.6rem;font-weight:700;color:#f59e0b;" x-text="'₹' + pendingAmount.toLocaleString('en-IN')"></div>
+          <div style="color:var(--text-muted);font-size:0.8rem;">Pending</div>
+        </div>
+        <div class="glass" style="padding:1.25rem;text-align:center;">
+          <div style="font-size:1.6rem;font-weight:700;color:#60a5fa;" x-text="invoices.length"></div>
+          <div style="color:var(--text-muted);font-size:0.8rem;">Total Invoices</div>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div style="display:flex;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap;">
+        <input x-model="search" placeholder="Search client or invoice..." style="max-width:280px;"/>
+        <select x-model="statusFilter">
+          <option value="">All Statuses</option>
+          <option value="pending">Pending</option>
+          <option value="partial">Partial</option>
+          <option value="paid">Paid</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+      </div>
+
+      <!-- Invoices Table -->
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,0,64,0.1);border-radius:16px;overflow:hidden;">
+        <table style="width:100%;border-collapse:collapse;">
+          <thead>
+            <tr style="border-bottom:1px solid rgba(255,0,64,0.1);">
+              <th style="text-align:left;padding:0.85rem 1.25rem;color:var(--text-muted);font-size:0.75rem;font-weight:700;text-transform:uppercase;">Invoice #</th>
+              <th style="text-align:left;padding:0.85rem 1.25rem;color:var(--text-muted);font-size:0.75rem;font-weight:700;text-transform:uppercase;">Client</th>
+              <th style="text-align:left;padding:0.85rem 1.25rem;color:var(--text-muted);font-size:0.75rem;font-weight:700;text-transform:uppercase;">Event</th>
+              <th style="text-align:right;padding:0.85rem 1.25rem;color:var(--text-muted);font-size:0.75rem;font-weight:700;text-transform:uppercase;">Amount</th>
+              <th style="text-align:right;padding:0.85rem 1.25rem;color:var(--text-muted);font-size:0.75rem;font-weight:700;text-transform:uppercase;">Paid</th>
+              <th style="text-align:left;padding:0.85rem 1.25rem;color:var(--text-muted);font-size:0.75rem;font-weight:700;text-transform:uppercase;">Status</th>
+              <th style="text-align:left;padding:0.85rem 1.25rem;color:var(--text-muted);font-size:0.75rem;font-weight:700;text-transform:uppercase;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="inv in filteredInvoices" :key="inv.id">
+              <tr style="border-bottom:1px solid rgba(255,255,255,0.04);transition:background 0.2s;" onmouseover="this.style.background='rgba(255,0,64,0.04)'" onmouseout="this.style.background='transparent'">
+                <td style="padding:1rem 1.25rem;color:var(--neon-red);font-size:0.85rem;font-weight:600;" x-text="inv.number"></td>
+                <td style="padding:1rem 1.25rem;">
+                  <div style="color:#fff;font-size:0.9rem;" x-text="inv.client"></div>
+                  <div style="color:var(--text-muted);font-size:0.75rem;" x-text="inv.date"></div>
+                </td>
+                <td style="padding:1rem 1.25rem;color:var(--text-muted);font-size:0.85rem;" x-text="inv.event"></td>
+                <td style="padding:1rem 1.25rem;text-align:right;color:#fff;font-size:0.9rem;font-weight:600;" x-text="'₹' + inv.amount.toLocaleString('en-IN')"></td>
+                <td style="padding:1rem 1.25rem;text-align:right;color:#4ade80;font-size:0.9rem;" x-text="'₹' + inv.paid.toLocaleString('en-IN')"></td>
+                <td style="padding:1rem 1.25rem;">
+                  <span class="status-badge"
+                    :class="{'badge-paid':inv.status==='paid','badge-pending':inv.status==='pending','badge-partial':inv.status==='partial','badge-cancelled':inv.status==='cancelled'}"
+                    x-text="inv.status.charAt(0).toUpperCase()+inv.status.slice(1)"></span>
+                </td>
+                <td style="padding:1rem 1.25rem;">
+                  <div style="display:flex;gap:0.5rem;">
+                    <button @click="viewInvoice(inv)" style="padding:0.25rem 0.65rem;border-radius:8px;font-size:0.78rem;font-weight:600;cursor:pointer;border:none;background:rgba(255,0,64,0.1);color:var(--neon-red);">View</button>
+                    <button @click="markPaid(inv)" x-show="inv.status!=='paid'" style="padding:0.25rem 0.65rem;border-radius:8px;font-size:0.78rem;font-weight:600;cursor:pointer;border:none;background:rgba(34,197,94,0.15);color:#4ade80;">Paid</button>
+                  </div>
+                </td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <!-- New Invoice Modal -->
+  <div class="modal-overlay" x-show="showModal" x-cloak @click.self="showModal=false" style="display:none;">
+    <div class="modal-box">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
+        <h3 style="font-family:'Playfair Display',serif;color:#fff;font-size:1.3rem;">Create Invoice</h3>
+        <button @click="showModal=false" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1.2rem;">✕</button>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:1rem;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div><label style="color:var(--text-muted);font-size:0.8rem;display:block;margin-bottom:0.3rem;">Client Name</label><input x-model="form.client" placeholder="Anisha Krishnan"/></div>
+          <div><label style="color:var(--text-muted);font-size:0.8rem;display:block;margin-bottom:0.3rem;">Event</label><input x-model="form.event" placeholder="Krishnan Wedding"/></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div><label style="color:var(--text-muted);font-size:0.8rem;display:block;margin-bottom:0.3rem;">Invoice Date</label><input x-model="form.date" type="date"/></div>
+          <div>
+            <label style="color:var(--text-muted);font-size:0.8rem;display:block;margin-bottom:0.3rem;">Status</label>
+            <select x-model="form.status">
+              <option value="pending">Pending</option>
+              <option value="partial">Partial</option>
+              <option value="paid">Paid</option>
+            </select>
+          </div>
+        </div>
+        <!-- Line Items -->
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;">
+            <label style="color:var(--text-muted);font-size:0.8rem;">Line Items</label>
+            <button @click="addLine()" style="background:rgba(255,0,64,0.1);color:var(--neon-red);border:1px solid rgba(255,0,64,0.2);border-radius:8px;padding:0.2rem 0.6rem;font-size:0.75rem;cursor:pointer;">+ Add</button>
+          </div>
+          <template x-for="(line, idx) in form.lines" :key="idx">
+            <div class="invoice-line">
+              <input x-model="line.desc" placeholder="Decoration service" style="font-size:0.85rem;"/>
+              <input x-model.number="line.qty" type="number" placeholder="1" style="width:60px;font-size:0.85rem;text-align:center;"/>
+              <input x-model.number="line.rate" type="number" placeholder="50000" style="width:100px;font-size:0.85rem;text-align:right;"/>
+            </div>
+          </template>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div><label style="color:var(--text-muted);font-size:0.8rem;display:block;margin-bottom:0.3rem;">Amount Paid (₹)</label><input x-model.number="form.paid" type="number" placeholder="25000"/></div>
+          <div style="background:rgba(255,0,64,0.05);border:1px solid rgba(255,0,64,0.1);border-radius:10px;padding:0.75rem;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;">
+            <div style="color:var(--text-muted);font-size:0.75rem;">Total Amount</div>
+            <div style="color:var(--neon-red);font-size:1.3rem;font-weight:700;" x-text="'₹' + form.lines.reduce((s,l)=>s+(l.qty*l.rate),0).toLocaleString('en-IN')"></div>
+          </div>
+        </div>
+        <div><label style="color:var(--text-muted);font-size:0.8rem;display:block;margin-bottom:0.3rem;">Notes</label><textarea x-model="form.notes" rows="2" placeholder="Payment due before event..."></textarea></div>
+      </div>
+      <div style="display:flex;gap:1rem;margin-top:1.5rem;justify-content:flex-end;">
+        <button @click="showModal=false" class="btn-neon" style="padding:0.65rem 1.5rem;">Cancel</button>
+        <button @click="createInvoice()" class="btn-neon-solid" style="padding:0.65rem 1.5rem;">Create Invoice</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+  function billingAdmin() {
+    return {
+      user: JSON.parse(localStorage.getItem('user')||'null'),
+      search:'', statusFilter:'',
+      showModal:false, nextId:10,
+      form:{client:'',event:'',date:'',status:'pending',paid:0,notes:'',lines:[{desc:'',qty:1,rate:0}]},
+      invoices:[
+        {id:1,number:'SS-2025-000001',client:'Anisha Krishnan',event:'Krishnan Wedding',date:'2025-03-15',amount:125000,paid:62500,status:'partial'},
+        {id:2,number:'SS-2025-000002',client:'Rajesh Menon',event:'TechCorp Annual Day',date:'2025-03-20',amount:85000,paid:85000,status:'paid'},
+        {id:3,number:'SS-2025-000003',client:'Priya Thomas',event:'Athira Birthday',date:'2025-03-22',amount:35000,paid:0,status:'pending'},
+        {id:4,number:'SS-2025-000004',client:'Suresh Kumar',event:'Cultural Program',date:'2025-03-25',amount:55000,paid:20000,status:'partial'},
+        {id:5,number:'SS-2025-000005',client:'Deepa Nair',event:'Deepa-Arun Wedding',date:'2025-03-10',amount:180000,paid:180000,status:'paid'},
+      ],
+      get filteredInvoices() {
+        return this.invoices.filter(i=>{
+          const q=this.search.toLowerCase();
+          const ms=!q||i.client.toLowerCase().includes(q)||i.number.includes(q);
+          const mst=!this.statusFilter||i.status===this.statusFilter;
+          return ms&&mst;
+        });
+      },
+      get totalRevenue(){return this.invoices.reduce((s,i)=>s+i.amount,0);},
+      get paidAmount(){return this.invoices.reduce((s,i)=>s+i.paid,0);},
+      get pendingAmount(){return this.invoices.reduce((s,i)=>s+(i.amount-i.paid),0);},
+      addLine(){this.form.lines.push({desc:'',qty:1,rate:0});},
+      openModal(){this.form={client:'',event:'',date:new Date().toISOString().slice(0,10),status:'pending',paid:0,notes:'',lines:[{desc:'Service',qty:1,rate:0}]};this.showModal=true;},
+      createInvoice(){
+        const total=this.form.lines.reduce((s,l)=>s+(l.qty*l.rate),0);
+        const num='SS-2025-'+(String(this.nextId).padStart(6,'0'));
+        this.invoices.unshift({id:this.nextId++,number:num,client:this.form.client,event:this.form.event,date:this.form.date,amount:total,paid:this.form.paid,status:this.form.status});
+        this.showModal=false;
+      },
+      markPaid(inv){inv.paid=inv.amount;inv.status='paid';},
+      viewInvoice(inv){alert('Invoice: '+inv.number+'\nClient: '+inv.client+'\nAmount: ₹'+inv.amount.toLocaleString('en-IN')+'\nPaid: ₹'+inv.paid.toLocaleString('en-IN'));},
+      logout(){localStorage.clear();window.location.href='../login.html';},
+      init(){if(!localStorage.getItem('access_token'))window.location.href='../login.html';}
+    };
+  }
+</script>
+</body>
+</html>

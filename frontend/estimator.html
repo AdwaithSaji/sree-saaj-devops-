@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Event Cost Estimator — Sree Saaj Events</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: {
+        colors: { gold: { DEFAULT:'#D4AF37', light:'#E8C84A' }, ivory:'#FFFFF0', burgundy:'#800020', charcoal:'#36454F' },
+        fontFamily: { playfair:['"Playfair Display"','serif'], lato:['Lato','sans-serif'] }
+      }}
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <style>
+    body { font-family:'Lato',sans-serif; }
+    h1,h2,h3,h4 { font-family:'Playfair Display',serif; }
+    .step-card.selected { border-color:#D4AF37; background: linear-gradient(135deg, #D4AF3720, #fff); box-shadow:0 0 0 2px #D4AF37; }
+    .step-card { transition: all 0.2s ease; }
+    .step-card:hover { border-color:#D4AF37; }
+  </style>
+</head>
+<body class="bg-ivory" x-data="estimator()">
+
+  <!-- Navbar (simplified) -->
+  <nav class="bg-charcoal py-4 px-4 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <a href="index.html" class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-full bg-gold flex items-center justify-center">
+          <span class="text-charcoal font-bold text-sm">SS</span>
+        </div>
+        <span class="font-playfair text-gold font-bold text-lg">Sree Saaj</span>
+      </a>
+      <div class="hidden md:flex items-center gap-6 text-sm">
+        <a href="index.html"     class="text-gray-300 hover:text-gold">Home</a>
+        <a href="services.html"  class="text-gray-300 hover:text-gold">Services</a>
+        <a href="menu.html"      class="text-gray-300 hover:text-gold">Menu</a>
+        <a href="booking.html"   class="text-gray-300 hover:text-gold">Booking</a>
+        <a href="estimator.html" class="text-gold font-bold">Estimator</a>
+        <a href="login.html"     class="bg-gold text-charcoal px-4 py-1.5 rounded-full font-bold">Login</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Banner -->
+  <div class="bg-gradient-to-r from-charcoal to-burgundy py-16 px-4 text-center">
+    <p class="text-gold tracking-widest uppercase text-sm font-bold mb-3">Plan Your Budget</p>
+    <h1 class="font-playfair text-4xl md:text-5xl font-bold text-white mb-4">Event Cost Estimator</h1>
+    <p class="text-gray-300 text-lg max-w-2xl mx-auto">Get an instant estimate for your event. Adjust options to see how costs change.</p>
+  </div>
+
+  <!-- Progress Bar -->
+  <div class="bg-white border-b sticky top-16 z-40 py-4 px-4">
+    <div class="max-w-4xl mx-auto">
+      <div class="flex items-center justify-between mb-2">
+        <template x-for="(s, i) in steps" :key="i">
+          <div class="flex items-center" :class="i < steps.length - 1 ? 'flex-1' : ''">
+            <div class="flex flex-col items-center">
+              <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all"
+                   :class="currentStep > i ? 'bg-gold text-charcoal' : currentStep === i ? 'bg-charcoal text-gold border-2 border-gold' : 'bg-gray-200 text-gray-500'">
+                <span x-show="currentStep > i">✓</span>
+                <span x-show="currentStep <= i" x-text="i + 1"></span>
+              </div>
+              <span class="text-xs mt-1 hidden md:block" :class="currentStep >= i ? 'text-charcoal font-bold' : 'text-gray-400'" x-text="s"></span>
+            </div>
+            <div x-show="i < steps.length - 1" class="flex-1 h-0.5 mx-2 mt-0 md:-mt-4 transition-all"
+                 :class="currentStep > i ? 'bg-gold' : 'bg-gray-200'"></div>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+
+  <div class="max-w-4xl mx-auto px-4 py-12">
+
+    <!-- Step 1: Event Type -->
+    <div x-show="currentStep === 0" x-transition>
+      <h2 class="font-playfair text-3xl font-bold text-charcoal mb-2">What type of event?</h2>
+      <p class="text-gray-500 mb-8">Select the type of event you're planning</p>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <template x-for="et in eventTypes" :key="et.value">
+          <div @click="selection.eventType = et; nextStep()"
+               class="step-card border-2 border-gray-200 rounded-2xl p-6 cursor-pointer text-center"
+               :class="selection.eventType?.value === et.value ? 'selected' : ''">
+            <div class="text-4xl mb-3" x-text="et.icon"></div>
+            <div class="font-bold text-charcoal text-sm" x-text="et.label"></div>
+            <div class="text-gray-400 text-xs mt-1" x-text="et.desc"></div>
+          </div>
+        </template>
+      </div>
+    </div>
+
+    <!-- Step 2: Guest Count -->
+    <div x-show="currentStep === 1" x-transition>
+      <h2 class="font-playfair text-3xl font-bold text-charcoal mb-2">How many guests?</h2>
+      <p class="text-gray-500 mb-8">Use the slider or type the number directly</p>
+      <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+        <div class="text-center mb-8">
+          <span class="font-playfair text-7xl font-bold text-charcoal" x-text="selection.guests"></span>
+          <span class="text-gray-400 text-2xl ml-2">guests</span>
+        </div>
+        <input type="range" min="10" max="1000" step="10"
+               x-model.number="selection.guests"
+               class="w-full h-3 rounded-full appearance-none cursor-pointer mb-6"
+               style="accent-color: #D4AF37;" />
+        <div class="flex justify-between text-sm text-gray-400 mb-8">
+          <span>10 guests</span>
+          <span>500 guests</span>
+          <span>1000 guests</span>
+        </div>
+        <div class="flex gap-4 justify-center">
+          <button @click="selection.guests = Math.max(10, selection.guests - 50)" class="px-6 py-2 border-2 border-gray-300 rounded-full font-bold hover:border-gold transition-colors">- 50</button>
+          <input type="number" x-model.number="selection.guests" min="10" max="1000"
+                 class="w-32 text-center border-2 border-gray-300 rounded-full py-2 font-bold focus:border-gold outline-none"/>
+          <button @click="selection.guests = Math.min(1000, selection.guests + 50)" class="px-6 py-2 border-2 border-gray-300 rounded-full font-bold hover:border-gold transition-colors">+ 50</button>
+        </div>
+      </div>
+      <div class="flex gap-4 mt-8">
+        <button @click="prevStep()" class="px-8 py-3 border-2 border-gray-300 rounded-full font-bold hover:border-charcoal transition-colors">← Back</button>
+        <button @click="nextStep()" class="px-10 py-3 bg-charcoal text-gold rounded-full font-bold hover:bg-burgundy transition-colors">Continue →</button>
+      </div>
+    </div>
+
+    <!-- Step 3: Catering Package -->
+    <div x-show="currentStep === 2" x-transition>
+      <h2 class="font-playfair text-3xl font-bold text-charcoal mb-2">Choose catering package</h2>
+      <p class="text-gray-500 mb-8">Price is per person</p>
+      <div class="grid md:grid-cols-2 gap-6">
+        <template x-for="pkg in cateringPackages" :key="pkg.value">
+          <div @click="selection.cateringPkg = pkg"
+               class="step-card border-2 rounded-2xl p-6 cursor-pointer relative overflow-hidden"
+               :class="[selection.cateringPkg?.value === pkg.value ? 'selected' : 'border-gray-200',
+                        pkg.popular ? 'ring-2 ring-gold' : '']">
+            <div x-show="pkg.popular" class="absolute top-3 right-3 bg-gold text-charcoal text-xs font-bold px-3 py-1 rounded-full">Popular</div>
+            <div class="flex items-center gap-3 mb-4">
+              <span class="text-3xl" x-text="pkg.icon"></span>
+              <div>
+                <div class="font-bold text-charcoal" x-text="pkg.label"></div>
+                <div class="text-gold font-bold text-xl">₹<span x-text="pkg.rate.toLocaleString('en-IN')"></span>/person</div>
+              </div>
+            </div>
+            <ul class="space-y-1.5">
+              <template x-for="f in pkg.features" :key="f">
+                <li class="flex items-center gap-2 text-sm text-gray-600">
+                  <span class="text-gold text-xs">✓</span>
+                  <span x-text="f"></span>
+                </li>
+              </template>
+            </ul>
+            <div class="mt-4 pt-4 border-t border-gray-100">
+              <span class="text-gray-400 text-sm">Total for </span>
+              <span class="text-gray-400 text-sm" x-text="selection.guests"></span>
+              <span class="text-gray-400 text-sm"> guests: </span>
+              <span class="font-bold text-charcoal">₹<span x-text="(pkg.rate * selection.guests).toLocaleString('en-IN')"></span></span>
+            </div>
+          </div>
+        </template>
+        <div @click="selection.cateringPkg = {label:'No Catering',rate:0,value:'none',icon:'🚫'}"
+             class="step-card border-2 border-dashed rounded-2xl p-6 cursor-pointer text-center flex flex-col items-center justify-center"
+             :class="selection.cateringPkg?.value === 'none' ? 'selected' : 'border-gray-200'">
+          <span class="text-4xl mb-3">🚫</span>
+          <div class="font-bold text-gray-500">No Catering</div>
+          <div class="text-gray-400 text-sm mt-1">Decoration only</div>
+        </div>
+      </div>
+      <div class="flex gap-4 mt-8">
+        <button @click="prevStep()" class="px-8 py-3 border-2 border-gray-300 rounded-full font-bold hover:border-charcoal transition-colors">← Back</button>
+        <button @click="nextStep()" x-show="selection.cateringPkg" class="px-10 py-3 bg-charcoal text-gold rounded-full font-bold hover:bg-burgundy transition-colors">Continue →</button>
+      </div>
+    </div>
+
+    <!-- Step 4: Decoration Package -->
+    <div x-show="currentStep === 3" x-transition>
+      <h2 class="font-playfair text-3xl font-bold text-charcoal mb-2">Choose decoration package</h2>
+      <p class="text-gray-500 mb-8">Select your decoration tier</p>
+      <div class="grid md:grid-cols-3 gap-5">
+        <template x-for="pkg in decorationPackages" :key="pkg.value">
+          <div @click="selection.decorationPkg = pkg"
+               class="step-card border-2 rounded-2xl p-6 cursor-pointer"
+               :class="selection.decorationPkg?.value === pkg.value ? 'selected' : 'border-gray-200'">
+            <div class="text-3xl mb-3" x-text="pkg.icon"></div>
+            <div class="font-bold text-charcoal mb-1" x-text="pkg.label"></div>
+            <div class="text-gold font-bold text-lg mb-3">
+              <span x-show="pkg.price > 0">₹<span x-text="pkg.price.toLocaleString('en-IN')"></span></span>
+              <span x-show="pkg.price === 0" class="text-gray-400">Free</span>
+            </div>
+            <ul class="space-y-1 mt-3">
+              <template x-for="f in pkg.features" :key="f">
+                <li class="flex items-center gap-2 text-sm text-gray-500">
+                  <span class="text-gold text-xs">✓</span>
+                  <span x-text="f"></span>
+                </li>
+              </template>
+            </ul>
+          </div>
+        </template>
+      </div>
+      <div class="flex gap-4 mt-8">
+        <button @click="prevStep()" class="px-8 py-3 border-2 border-gray-300 rounded-full font-bold hover:border-charcoal transition-colors">← Back</button>
+        <button @click="nextStep()" x-show="selection.decorationPkg" class="px-10 py-3 bg-charcoal text-gold rounded-full font-bold hover:bg-burgundy transition-colors">Continue →</button>
+      </div>
+    </div>
+
+    <!-- Step 5: Additional Services -->
+    <div x-show="currentStep === 4" x-transition>
+      <h2 class="font-playfair text-3xl font-bold text-charcoal mb-2">Additional services</h2>
+      <p class="text-gray-500 mb-8">Select any extra services you need</p>
+      <div class="grid md:grid-cols-2 gap-4">
+        <template x-for="addon in addons" :key="addon.value">
+          <label class="step-card border-2 rounded-2xl p-5 cursor-pointer flex items-center gap-4"
+                 :class="addon.selected ? 'selected' : 'border-gray-200'">
+            <input type="checkbox" x-model="addon.selected" class="w-5 h-5 accent-yellow-500"/>
+            <span class="text-3xl" x-text="addon.icon"></span>
+            <div class="flex-1">
+              <div class="font-bold text-charcoal" x-text="addon.label"></div>
+              <div class="text-gray-400 text-sm" x-text="addon.desc"></div>
+            </div>
+            <div class="font-bold text-gold">₹<span x-text="addon.price.toLocaleString('en-IN')"></span></div>
+          </label>
+        </template>
+      </div>
+      <div class="flex gap-4 mt-8">
+        <button @click="prevStep()" class="px-8 py-3 border-2 border-gray-300 rounded-full font-bold hover:border-charcoal transition-colors">← Back</button>
+        <button @click="showResults = true; currentStep = 5" class="px-10 py-3 bg-gold text-charcoal rounded-full font-bold hover:bg-gold-light transition-colors">Calculate Estimate →</button>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div x-show="currentStep === 5" x-transition>
+      <div class="text-center mb-10">
+        <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <span class="text-4xl">🎉</span>
+        </div>
+        <h2 class="font-playfair text-3xl font-bold text-charcoal">Your Estimated Cost</h2>
+        <p class="text-gray-500 mt-2">For a <strong x-text="selection.eventType?.label"></strong> with <strong x-text="selection.guests"></strong> guests</p>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden mb-8">
+        <div class="bg-charcoal p-6">
+          <div class="text-gray-300 text-sm tracking-widest uppercase">Estimated Grand Total</div>
+          <div class="font-playfair text-5xl font-bold text-gold mt-1">₹<span x-text="grandTotal.toLocaleString('en-IN')"></span></div>
+        </div>
+
+        <div class="p-6 space-y-4">
+          <div class="flex justify-between items-center py-3 border-b border-gray-100" x-show="cateringTotal > 0">
+            <div>
+              <div class="font-bold text-charcoal">🍽️ Catering</div>
+              <div class="text-gray-400 text-sm" x-text="selection.cateringPkg?.label + ' · ₹' + selection.cateringPkg?.rate + '/person × ' + selection.guests + ' guests'"></div>
+            </div>
+            <div class="font-bold text-charcoal text-lg">₹<span x-text="cateringTotal.toLocaleString('en-IN')"></span></div>
+          </div>
+
+          <div class="flex justify-between items-center py-3 border-b border-gray-100" x-show="selection.decorationPkg?.price > 0">
+            <div>
+              <div class="font-bold text-charcoal">✨ Decoration</div>
+              <div class="text-gray-400 text-sm" x-text="selection.decorationPkg?.label"></div>
+            </div>
+            <div class="font-bold text-charcoal text-lg">₹<span x-text="selection.decorationPkg?.price.toLocaleString('en-IN')"></span></div>
+          </div>
+
+          <template x-for="addon in addons.filter(a => a.selected)" :key="addon.value">
+            <div class="flex justify-between items-center py-3 border-b border-gray-100">
+              <div>
+                <div class="font-bold text-charcoal" x-text="addon.icon + ' ' + addon.label"></div>
+              </div>
+              <div class="font-bold text-charcoal text-lg">₹<span x-text="addon.price.toLocaleString('en-IN')"></span></div>
+            </div>
+          </template>
+        </div>
+      </div>
+
+      <!-- Disclaimer -->
+      <div class="bg-amber-50 border border-amber-200 rounded-2xl p-6 mb-8">
+        <div class="flex items-start gap-3">
+          <span class="text-2xl flex-shrink-0">⚠️</span>
+          <div>
+            <h4 class="font-bold text-amber-800 mb-2">Approximate Estimate Only</h4>
+            <p class="text-amber-700 text-sm leading-relaxed">
+              This price is only an approximate estimate. Actual cost may vary based on your specific location, season, venue requirements, custom requests, and prevailing market rates.
+              <strong>Final quotation will be provided by our manager via WhatsApp after discussing your requirements in detail.</strong>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex flex-col sm:flex-row gap-4">
+        <a :href="whatsappLink"
+           target="_blank"
+           class="flex-1 bg-green-500 text-white px-8 py-4 rounded-full font-bold text-center hover:bg-green-600 transition-colors flex items-center justify-center gap-2">
+          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+          </svg>
+          Request Final Quote on WhatsApp
+        </a>
+        <button @click="reset()" class="flex-1 border-2 border-charcoal text-charcoal px-8 py-4 rounded-full font-bold hover:bg-charcoal hover:text-gold transition-colors">
+          Recalculate
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- WhatsApp Float -->
+  <a href="https://wa.me/918075707566" target="_blank"
+     class="fixed bottom-8 right-8 z-50 w-14 h-14 bg-green-500 rounded-full flex items-center justify-center shadow-2xl hover:bg-green-400 hover:scale-110 transition-all">
+    <svg class="w-8 h-8" fill="white" viewBox="0 0 24 24">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+    </svg>
+  </a>
+
+  <script>
+    function estimator() {
+      return {
+        currentStep: 0,
+        showResults: false,
+        steps: ['Event Type', 'Guest Count', 'Catering', 'Decoration', 'Add-ons', 'Results'],
+        selection: { eventType: null, guests: 100, cateringPkg: null, decorationPkg: null },
+        eventTypes: [
+          { value: 'wedding',   label: 'Wedding',           icon: '💍', desc: 'Grand ceremony' },
+          { value: 'birthday',  label: 'Birthday',          icon: '🎂', desc: 'Celebration' },
+          { value: 'corporate', label: 'Corporate',         icon: '🏢', desc: 'Business event' },
+          { value: 'funeral',   label: 'Funeral',           icon: '🕊️', desc: 'Memorial' },
+          { value: 'stage',     label: 'Stage Event',       icon: '🎭', desc: 'Performance' },
+          { value: 'catering',  label: 'Outdoor Catering',  icon: '🍽️', desc: 'Food service' },
+          { value: 'custom',    label: 'Custom Event',      icon: '✨', desc: 'Your vision' },
+        ],
+        cateringPackages: [
+          { value: 'basic',    label: 'Basic',    rate: 150,  icon: '🥗', popular: false, features: ['Rice & 2 curries','Salad','Water','Disposable plates'] },
+          { value: 'standard', label: 'Standard', rate: 300,  icon: '🍱', popular: true,  features: ['Rice & 4 curries','Dessert','Juice','Quality crockery','Serve staff'] },
+          { value: 'premium',  label: 'Premium',  rate: 500,  icon: '🍽️', popular: false, features: ['Full buffet 15+ dishes','Live counter','Dessert station','Drinks','Full service'] },
+          { value: 'royal',    label: 'Royal',    rate: 800,  icon: '👑', popular: false, features: ['Grand buffet 25+ dishes','Live cooking','Bar counter','Premium crockery','Dedicated team'] },
+        ],
+        decorationPackages: [
+          { value: 'none',     label: 'No Decoration',   price: 0,     icon: '⬜', features: ['Venue as-is'] },
+          { value: 'basic',    label: 'Basic',            price: 5000,  icon: '🌸', features: ['Fresh flowers','Basic backdrop','Welcome arch'] },
+          { value: 'standard', label: 'Standard',         price: 15000, icon: '🌺', features: ['Floral arrangements','Stage backdrop','Photo zone','Lighting'] },
+          { value: 'premium',  label: 'Premium',          price: 35000, icon: '🌹', features: ['Full venue décor','Premium flowers','LED backdrop','Centrepieces','Fairy lights'] },
+          { value: 'royal',    label: 'Royal',            price: 75000, icon: '👑', features: ['Luxury décor','Imported flowers','LED walls','Crystal centrepieces','Carpet & draping'] },
+        ],
+        addons: [
+          { value: 'photo',      label: 'Photography',      desc: 'Professional event photographer',    price: 8000,  icon: '📸', selected: false },
+          { value: 'video',      label: 'Videography',       desc: 'HD video + highlights reel',         price: 12000, icon: '🎬', selected: false },
+          { value: 'sound',      label: 'Sound System',      desc: 'Speakers, mic, DJ equipment',        price: 5000,  icon: '🔊', selected: false },
+          { value: 'generator',  label: 'Generator Backup',  desc: 'Uninterrupted power supply',         price: 3000,  icon: '⚡', selected: false },
+          { value: 'tent',       label: 'Tent / Pandal',     desc: 'Waterproof tent for outdoor events', price: 20000, icon: '⛺', selected: false },
+          { value: 'transport',  label: 'Guest Transport',   desc: 'Bus/van for guest pickup/drop',      price: 10000, icon: '🚌', selected: false },
+        ],
+        get cateringTotal() {
+          if (!this.selection.cateringPkg || this.selection.cateringPkg.value === 'none') return 0;
+          return this.selection.cateringPkg.rate * this.selection.guests;
+        },
+        get addonsTotal() {
+          return this.addons.filter(a => a.selected).reduce((s, a) => s + a.price, 0);
+        },
+        get grandTotal() {
+          return this.cateringTotal + (this.selection.decorationPkg?.price || 0) + this.addonsTotal;
+        },
+        get whatsappLink() {
+          const msg = encodeURIComponent(
+            `Hello Sree Saaj! I used your Cost Estimator and got an estimate.\n\n` +
+            `Event: ${this.selection.eventType?.label}\n` +
+            `Guests: ${this.selection.guests}\n` +
+            `Catering: ${this.selection.cateringPkg?.label || 'None'}\n` +
+            `Decoration: ${this.selection.decorationPkg?.label || 'None'}\n` +
+            `Estimated Total: ₹${this.grandTotal.toLocaleString('en-IN')}\n\n` +
+            `Please provide a final quotation.`
+          );
+          return `https://wa.me/918075707566?text=${msg}`;
+        },
+        nextStep() {
+          if (this.currentStep < 5) this.currentStep++;
+        },
+        prevStep() {
+          if (this.currentStep > 0) this.currentStep--;
+        },
+        reset() {
+          this.currentStep = 0;
+          this.selection = { eventType: null, guests: 100, cateringPkg: null, decorationPkg: null };
+          this.addons.forEach(a => a.selected = false);
+        },
+      };
+    }
+  </script>
+</body>
+</html>

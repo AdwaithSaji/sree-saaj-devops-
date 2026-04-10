@@ -1,0 +1,20 @@
+---
+# PersistentVolumeClaim for gallery-service image uploads
+# Uses Azure Disk (default AKS storage class) — ReadWriteOnce is sufficient
+# for a single-replica scenario. For multi-replica, use Azure Files (RWX).
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: gallery-uploads-pvc
+  namespace: sreesaaj
+  labels:
+    app: gallery-service
+    app.kubernetes.io/name: gallery-service
+    app.kubernetes.io/component: storage
+spec:
+  accessModes:
+  - ReadWriteOnce
+  storageClassName: managed-csi       # Azure Disk — default AKS storage class
+  resources:
+    requests:
+      storage: 10Gi

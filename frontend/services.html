@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Our Services — Sree Saaj Events & Caterers</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+  <link href="static/css/neon.css" rel="stylesheet"/>
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet"/>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <style>
+    .scanline { position:fixed; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,transparent,rgba(255,0,64,0.3),transparent); animation:scanline 8s linear infinite; pointer-events:none; z-index:9999; opacity:0.4; }
+    .service-row { display:grid; grid-template-columns:1fr 1fr; gap:4rem; align-items:center; padding:4rem 0; border-bottom:1px solid rgba(255,0,64,0.08); }
+    .service-row:last-child { border-bottom:none; }
+    .service-visual { aspect-ratio:4/3; border-radius:20px; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; }
+    .service-visual-inner { text-align:center; color:white; padding:2rem; position:relative; z-index:1; }
+    .service-icon { font-size:5rem; margin-bottom:1rem; display:block; }
+    .feature-check { display:flex; align-items:center; gap:0.75rem; padding:0.4rem 0; }
+    .check-dot { width:20px; height:20px; border-radius:50%; background:rgba(255,0,64,0.15); border:1px solid var(--neon-red); display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:0.7rem; color:var(--neon-red); }
+    .process-step { text-align:center; }
+    .step-num { width:64px; height:64px; border-radius:16px; background:var(--neon-red); display:flex; align-items:center; justify-content:center; margin:0 auto 1rem; font-family:'Playfair Display',serif; font-size:1.5rem; font-weight:700; color:#fff; box-shadow:0 0 20px var(--neon-red-glow); }
+    @media(max-width:768px) { .service-row { grid-template-columns:1fr; gap:2rem; } }
+  </style>
+</head>
+<body class="grid-bg" x-data="servicesApp()">
+<div class="scanline"></div>
+
+<!-- Navbar -->
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="index.html" class="navbar-brand">
+      <img src="static/images/saaj-logo.png" alt="Sree Saaj" style="height:40px;width:auto;filter:drop-shadow(0 0 8px rgba(255,0,64,0.5));"/>
+    </a>
+    <div class="navbar-links">
+      <a href="index.html">Home</a>
+      <a href="about.html">About</a>
+      <a href="services.html" class="active">Services</a>
+      <a href="menu.html">Menu</a>
+      <a href="gallery.html">Gallery</a>
+      <a href="booking.html">Booking</a>
+      <a href="estimator.html">Estimator</a>
+      <a href="login.html" class="btn-neon" style="padding:0.4rem 1.2rem;">Login</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section style="padding:7rem 1.5rem 4rem; text-align:center; position:relative; overflow:hidden;">
+  <div style="position:absolute;top:10%;right:10%;width:500px;height:500px;background:radial-gradient(circle,rgba(255,0,64,0.1),transparent 70%);border-radius:50%;pointer-events:none;"></div>
+  <p class="neon-text-subtle" style="font-size:0.75rem;letter-spacing:0.3em;text-transform:uppercase;margin-bottom:1rem;" data-aos="fade-down">What We Offer</p>
+  <h1 style="font-family:'Playfair Display',serif;font-size:clamp(2.5rem,6vw,4.5rem);font-weight:700;color:#fff;margin-bottom:1.5rem;" data-aos="fade-up">
+    Our <em style="color:var(--neon-red);text-shadow:0 0 30px rgba(255,0,64,0.5);">Services</em>
+  </h1>
+  <p style="max-width:600px;margin:0 auto;color:var(--text-muted);font-size:1.1rem;line-height:1.8;" data-aos="fade-up" data-aos-delay="100">
+    Comprehensive event management and catering solutions — from intimate gatherings to grand celebrations.
+  </p>
+</section>
+
+<!-- Services List -->
+<div style="max-width:1100px;margin:0 auto;padding:2rem 1.5rem 5rem;">
+  <template x-for="(service, i) in services" :key="service.id">
+    <div class="service-row" :id="service.id" data-aos="fade-up">
+
+      <!-- Visual (alternate sides) -->
+      <div :style="i % 2 === 1 ? 'order:2' : 'order:1'">
+        <div class="service-visual" :style="'background:' + service.gradient + ';box-shadow:0 0 40px rgba(255,0,64,0.2)'">
+          <div style="position:absolute;inset:0;background:rgba(0,0,0,0.2);"></div>
+          <div class="service-visual-inner">
+            <span class="service-icon" x-text="service.icon"></span>
+            <div style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;opacity:0.95;" x-text="service.name"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div :style="i % 2 === 1 ? 'order:1' : 'order:2'">
+        <span style="display:inline-block;background:rgba(255,0,64,0.1);border:1px solid rgba(255,0,64,0.3);color:var(--neon-red);font-size:0.7rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;padding:0.3rem 0.8rem;border-radius:20px;margin-bottom:1rem;" x-text="service.category"></span>
+        <h2 style="font-family:'Playfair Display',serif;font-size:2rem;color:#fff;margin-bottom:1rem;" x-text="service.name"></h2>
+        <p style="color:var(--text-muted);line-height:1.8;margin-bottom:1.5rem;" x-text="service.description"></p>
+
+        <h4 style="color:#fff;font-size:0.9rem;font-weight:700;margin-bottom:0.8rem;">What's Included:</h4>
+        <div style="margin-bottom:1.5rem;">
+          <template x-for="feature in service.features" :key="feature">
+            <div class="feature-check">
+              <div class="check-dot">✓</div>
+              <span style="color:var(--text-muted);font-size:0.9rem;" x-text="feature"></span>
+            </div>
+          </template>
+        </div>
+
+        <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+          <a href="booking.html"
+             :onclick="'sessionStorage.setItem(\'eventType\',\'' + service.id + '\')'"
+             class="btn-neon-solid">Book This Service</a>
+          <a :href="'https://wa.me/918075707566?text=' + encodeURIComponent('Hello! I\'m interested in your ' + service.name + ' service. Please share details.')"
+             target="_blank"
+             style="display:inline-flex;align-items:center;gap:0.5rem;background:#25d366;color:#fff;padding:0.75rem 1.5rem;border-radius:50px;font-weight:700;font-size:0.9rem;text-decoration:none;transition:all 0.3s;"
+             onmouseover="this.style.background='#20bb5a'" onmouseout="this.style.background='#25d366'">
+            💬 WhatsApp Inquiry
+          </a>
+        </div>
+      </div>
+    </div>
+  </template>
+</div>
+
+<!-- Process Section -->
+<section style="background:rgba(255,0,64,0.03);border-top:1px solid rgba(255,0,64,0.1);border-bottom:1px solid rgba(255,0,64,0.1);padding:5rem 1.5rem;">
+  <div style="max-width:1100px;margin:0 auto;">
+    <div style="text-align:center;margin-bottom:3rem;" data-aos="fade-up">
+      <p class="neon-text-subtle" style="font-size:0.75rem;letter-spacing:0.2em;text-transform:uppercase;margin-bottom:0.8rem;">How It Works</p>
+      <h2 style="font-family:'Playfair Display',serif;font-size:2.2rem;color:#fff;">Our Process</h2>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:2rem;">
+      <div class="process-step" data-aos="fade-up">
+        <div class="step-num">1</div>
+        <h3 style="font-family:'Playfair Display',serif;color:var(--neon-red);font-size:1.1rem;margin-bottom:0.5rem;">Inquiry</h3>
+        <p style="color:var(--text-muted);font-size:0.9rem;">Fill the booking form or WhatsApp us with your event requirements.</p>
+      </div>
+      <div class="process-step" data-aos="fade-up" data-aos-delay="100">
+        <div class="step-num">2</div>
+        <h3 style="font-family:'Playfair Display',serif;color:var(--neon-red);font-size:1.1rem;margin-bottom:0.5rem;">Planning</h3>
+        <p style="color:var(--text-muted);font-size:0.9rem;">Our team meets you to understand your vision and plan every detail.</p>
+      </div>
+      <div class="process-step" data-aos="fade-up" data-aos-delay="200">
+        <div class="step-num">3</div>
+        <h3 style="font-family:'Playfair Display',serif;color:var(--neon-red);font-size:1.1rem;margin-bottom:0.5rem;">Execution</h3>
+        <p style="color:var(--text-muted);font-size:0.9rem;">Our experienced team sets up everything to perfection on your event day.</p>
+      </div>
+      <div class="process-step" data-aos="fade-up" data-aos-delay="300">
+        <div class="step-num">4</div>
+        <h3 style="font-family:'Playfair Display',serif;color:var(--neon-red);font-size:1.1rem;margin-bottom:0.5rem;">Celebration</h3>
+        <p style="color:var(--text-muted);font-size:0.9rem;">Relax and enjoy your event while we take care of everything!</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer style="background:rgba(0,0,0,0.5);border-top:1px solid rgba(255,0,64,0.15);padding:2rem 1.5rem;text-align:center;">
+  <a href="index.html" style="display:inline-flex;align-items:center;gap:0.75rem;text-decoration:none;margin-bottom:1rem;">
+    <div class="logo-badge">SAAJ</div>
+    <span style="font-family:'Playfair Display',serif;color:var(--neon-red);font-weight:700;">Sree Saaj Events & Caterers</span>
+  </a>
+  <p style="color:var(--text-muted);font-size:0.85rem;">© 2024 Sree Saaj Events & Caterers | <a href="index.html" style="color:var(--neon-red);">Home</a> · <a href="booking.html" style="color:var(--neon-red);">Book Now</a></p>
+</footer>
+
+<!-- WhatsApp Float -->
+<a href="https://wa.me/918075707566" target="_blank" class="whatsapp-float">
+  <svg width="28" height="28" fill="white" viewBox="0 0 24 24">
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+  </svg>
+</a>
+
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+  AOS.init({ duration:700, once:true });
+  function servicesApp() {
+    return {
+      services: [
+        {
+          id:'wedding', name:'Wedding Decoration', category:'Weddings',
+          icon:'💍', gradient:'linear-gradient(135deg,#800020,#ff0040,#cc0033)',
+          description:'Your wedding day is the most precious day of your life, and we are here to make it absolutely perfect. Our wedding decoration team creates breathtaking setups that blend traditional Kerala aesthetics with contemporary elegance.',
+          features:['Custom floral arrangements (fresh & artificial)','Mandap / stage decoration','Wedding car decoration','Gate decoration','Photo zone setup','LED backdrop & lighting','Theme weddings available','Full venue transformation']
+        },
+        {
+          id:'birthday', name:'Birthday Events', category:'Celebrations',
+          icon:'🎂', gradient:'linear-gradient(135deg,#4a90d9,#7b68ee)',
+          description:"From children's birthday parties to milestone adult celebrations, we create magical birthday events that everyone will remember. Our team handles everything from decoration to catering.",
+          features:['Theme-based decoration','Balloon arrangements','Cake table setup','Photo booth','Return gift management','Custom birthday banners','Catering packages available','Entertainment coordination']
+        },
+        {
+          id:'corporate', name:'Corporate Events', category:'Business',
+          icon:'🏢', gradient:'linear-gradient(135deg,#1a1a2e,#16213e,#0f3460)',
+          description:'Professional event management for product launches, annual days, conferences, seminars, and corporate galas. We understand the importance of precision and professionalism in corporate events.',
+          features:['Conference hall setup','Stage & podium decoration','Corporate branding integration','Audio-visual equipment','Multi-cuisine catering','Registration desk setup','Welcome signage','Networking dinner arrangements']
+        },
+        {
+          id:'funeral', name:'Funeral Decoration', category:'Memorial Services',
+          icon:'🕊️', gradient:'linear-gradient(135deg,#2d2d2d,#4a4a4a)',
+          description:'With deep respect and sensitivity, we provide dignified funeral and memorial decorations that honour your loved ones with the reverence they deserve. We handle all arrangements with utmost care and professionalism.',
+          features:['Floral tributes & wreaths','Hearse decoration','Memorial hall setup','Flower arrangements','Lighting arrangements','Photo display boards','Sympathy flower delivery','Complete setup & teardown']
+        },
+        {
+          id:'stage', name:'Stage Decoration', category:'Events',
+          icon:'🎭', gradient:'linear-gradient(135deg,#8e44ad,#c0392b)',
+          description:'Stunning stage setups for cultural programs, award ceremonies, school events, political rallies, and religious functions. We create visually impressive stages that make every performance memorable.',
+          features:['Custom stage backdrop design','LED/flex backdrop','Floral stage decoration','Podium decoration','Curtain & draping','Lighting & spotlight setup','Sound system coordination','Ramp/runway setup']
+        },
+        {
+          id:'catering', name:'Outdoor Catering', category:'Catering',
+          icon:'🍽️', gradient:'linear-gradient(135deg,#27ae60,#f39c12)',
+          description:'Authentic Kerala cuisine and multi-cuisine catering for any outdoor event. Our professional chefs prepare fresh, delicious food using traditional recipes and the finest ingredients sourced locally.',
+          features:['Kerala sadya (banana leaf)','North & South Indian cuisine','Multi-cuisine buffet','Live cooking counters','Snacks & starters','Dessert station','Professional serving staff','Complete crockery & cutlery']
+        },
+        {
+          id:'custom', name:'Custom Events', category:'Custom',
+          icon:'✨', gradient:'linear-gradient(135deg,#ff0040,#800020)',
+          description:"Have a unique event in mind? We're here to bring any vision to life. Religious ceremonies, house warming (griha pravesh), baby showers, bridal showers — we handle all types of custom events.",
+          features:['Griha Pravesh / House Warming','Baby shower arrangements','Bridal shower setups','Engagement ceremonies','Retirement parties','Festival celebrations','Religious functions','Fully customizable packages']
+        },
+      ]
+    };
+  }
+</script>
+</body>
+</html>

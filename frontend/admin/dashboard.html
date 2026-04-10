@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard — Sree Saaj</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+  <link href="../static/css/neon.css" rel="stylesheet"/>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <style>
+    body { background:var(--bg-primary); }
+    .sidebar { width:240px; background:rgba(255,255,255,0.03); border-right:1px solid rgba(255,0,64,0.15); position:fixed; inset-y:0; left:0; z-index:40; display:flex; flex-direction:column; transition:transform 0.3s; }
+    .main-area { flex:1; margin-left:240px; display:flex; flex-direction:column; }
+    .topbar { background:rgba(10,10,15,0.9); backdrop-filter:blur(12px); border-bottom:1px solid rgba(255,0,64,0.1); padding:1rem 1.5rem; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:30; }
+    .nav-link { display:flex; align-items:center; gap:0.75rem; padding:0.7rem 1rem; border-radius:10px; color:var(--text-muted); font-size:0.875rem; font-weight:500; text-decoration:none; transition:all 0.2s; }
+    .nav-link:hover { background:rgba(255,0,64,0.08); color:#fff; }
+    .nav-link.active { background:rgba(255,0,64,0.15); color:var(--neon-red); border-left:2px solid var(--neon-red); }
+    .stat-card { background:rgba(255,255,255,0.03); border:1px solid rgba(255,0,64,0.1); border-radius:16px; padding:1.5rem; transition:all 0.25s; }
+    .stat-card:hover { border-color:rgba(255,0,64,0.3); box-shadow:0 0 20px rgba(255,0,64,0.08); }
+    .booking-row { transition:background 0.2s; }
+    .booking-row:hover { background:rgba(255,0,64,0.04); }
+    .quick-action { display:flex; align-items:center; gap:0.75rem; padding:0.85rem 1rem; border-radius:12px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,0,64,0.08); text-decoration:none; transition:all 0.2s; color:#fff; }
+    .quick-action:hover { background:rgba(255,0,64,0.08); border-color:rgba(255,0,64,0.25); }
+    @media(max-width:1024px){.sidebar{transform:translateX(-100%);} .main-area{margin-left:0;}}
+  </style>
+</head>
+<body x-data="adminDash()" style="display:flex;min-height:100vh;">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" :class="sidebarOpen?'!translate-x-0':''">
+    <div style="padding:1.5rem 1rem;border-bottom:1px solid rgba(255,0,64,0.1);">
+      <a href="../index.html" style="display:flex;align-items:center;gap:0.75rem;text-decoration:none;">
+        <img src="../static/images/saaj-logo.png" alt="Sree Saaj" style="height:36px;width:auto;filter:drop-shadow(0 0 6px rgba(255,0,64,0.5));" />
+        <div>
+          <div style="font-family:'Playfair Display',serif;color:var(--neon-red);font-size:0.95rem;font-weight:700;">Sree Saaj</div>
+          <div style="color:var(--text-muted);font-size:0.7rem;">Admin Panel</div>
+        </div>
+      </a>
+    </div>
+    <nav style="flex:1;padding:1rem;overflow-y:auto;">
+      <a href="dashboard.html" class="nav-link active">📊 Dashboard</a>
+      <a href="events.html" class="nav-link">📅 Events</a>
+      <a href="#" class="nav-link">📋 Bookings</a>
+      <a href="inventory.html" class="nav-link">📦 Inventory</a>
+      <a href="billing.html" class="nav-link">💰 Billing</a>
+      <a href="staff.html" class="nav-link">👥 Staff</a>
+      <div style="height:1px;background:rgba(255,0,64,0.1);margin:0.75rem 0;"></div>
+      <a href="../gallery.html" class="nav-link">🖼️ Gallery</a>
+      <a href="../menu.html" class="nav-link">🍽️ Menu</a>
+      <div style="height:1px;background:rgba(255,0,64,0.1);margin:0.75rem 0;"></div>
+      <a href="../index.html" class="nav-link">🌐 View Website</a>
+    </nav>
+    <div style="padding:1rem;border-top:1px solid rgba(255,0,64,0.1);">
+      <div style="display:flex;align-items:center;gap:0.75rem;">
+        <div style="width:34px;height:34px;border-radius:50%;background:rgba(255,0,64,0.15);border:1px solid rgba(255,0,64,0.3);display:flex;align-items:center;justify-content:center;color:var(--neon-red);font-weight:700;font-size:0.85rem;" x-text="user?.full_name?.charAt(0)||'A'"></div>
+        <div style="flex:1;min-width:0;">
+          <div style="color:#fff;font-size:0.85rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" x-text="user?.full_name||'Admin'"></div>
+          <div style="color:var(--neon-red);font-size:0.7rem;capitalize" x-text="user?.role||'admin'"></div>
+        </div>
+        <button @click="logout()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;padding:0.2rem;" title="Logout">⏏</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="main-area">
+    <!-- Top Bar -->
+    <header class="topbar">
+      <div style="display:flex;align-items:center;gap:1rem;">
+        <button @click="sidebarOpen=!sidebarOpen" style="display:none;background:none;border:none;color:#fff;cursor:pointer;padding:0.25rem;" class="lg:hidden">☰</button>
+        <div>
+          <h1 style="font-family:'Playfair Display',serif;font-size:1.3rem;color:#fff;">Dashboard</h1>
+          <p style="color:var(--text-muted);font-size:0.75rem;" x-text="'Welcome back, ' + (user?.full_name || 'Admin')"></p>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:0.75rem;">
+        <span style="color:var(--text-muted);font-size:0.8rem;" x-text="today"></span>
+        <a href="../booking.html" target="_blank" class="btn-neon-solid" style="padding:0.5rem 1rem;font-size:0.82rem;">+ New Booking</a>
+      </div>
+    </header>
+
+    <!-- Dashboard Content -->
+    <main style="flex:1;padding:1.5rem;overflow-y:auto;">
+
+      <!-- Stats Cards -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:1.5rem;">
+        <template x-for="card in statsCards" :key="card.label">
+          <div class="stat-card">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+              <div style="font-size:2rem;" x-text="card.icon"></div>
+              <span style="font-size:0.72rem;font-weight:700;padding:0.2rem 0.5rem;border-radius:20px;"
+                :style="card.trend>0?'background:rgba(34,197,94,0.15);color:#4ade80':'background:rgba(107,114,128,0.15);color:#9ca3af'"
+                x-text="(card.trend>0?'↑ +':card.trend<0?'↓ ':'')+Math.abs(card.trend)+'%'"></span>
+            </div>
+            <div style="font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;color:var(--neon-red);" x-text="card.value"></div>
+            <div style="color:var(--text-muted);font-size:0.82rem;margin-top:0.2rem;" x-text="card.label"></div>
+          </div>
+        </template>
+      </div>
+
+      <!-- Recent Bookings + Sidebar widgets -->
+      <div style="display:grid;grid-template-columns:2fr 1fr;gap:1.5rem;">
+
+        <!-- Recent Bookings Table -->
+        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,0,64,0.1);border-radius:16px;overflow:hidden;">
+          <div style="padding:1.25rem 1.5rem;border-bottom:1px solid rgba(255,0,64,0.1);display:flex;align-items:center;justify-content:space-between;">
+            <h3 style="font-family:'Playfair Display',serif;color:#fff;font-size:1rem;">Recent Bookings</h3>
+            <a href="#" style="color:var(--neon-red);font-size:0.82rem;font-weight:600;text-decoration:none;">View All →</a>
+          </div>
+          <div style="overflow-x:auto;">
+            <table style="width:100%;border-collapse:collapse;">
+              <thead>
+                <tr style="border-bottom:1px solid rgba(255,0,64,0.08);">
+                  <th style="text-align:left;padding:0.75rem 1.25rem;color:var(--text-muted);font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Client</th>
+                  <th style="text-align:left;padding:0.75rem 1.25rem;color:var(--text-muted);font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Event</th>
+                  <th style="text-align:left;padding:0.75rem 1.25rem;color:var(--text-muted);font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Date</th>
+                  <th style="text-align:left;padding:0.75rem 1.25rem;color:var(--text-muted);font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Status</th>
+                  <th style="text-align:left;padding:0.75rem 1.25rem;color:var(--text-muted);font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template x-for="booking in recentBookings" :key="booking.id">
+                  <tr class="booking-row" style="border-bottom:1px solid rgba(255,255,255,0.03);">
+                    <td style="padding:0.85rem 1.25rem;">
+                      <div style="color:#fff;font-size:0.88rem;font-weight:500;" x-text="booking.name"></div>
+                      <div style="color:var(--text-muted);font-size:0.75rem;" x-text="booking.phone"></div>
+                    </td>
+                    <td style="padding:0.85rem 1.25rem;color:var(--text-muted);font-size:0.85rem;" x-text="booking.event"></td>
+                    <td style="padding:0.85rem 1.25rem;color:var(--text-muted);font-size:0.85rem;" x-text="booking.date"></td>
+                    <td style="padding:0.85rem 1.25rem;">
+                      <span style="display:inline-block;padding:0.2rem 0.55rem;border-radius:20px;font-size:0.7rem;font-weight:700;"
+                        :style="{
+                          'new':      'background:rgba(245,158,11,0.15);color:#f59e0b',
+                          'contacted':'background:rgba(96,165,250,0.15);color:#60a5fa',
+                          'confirmed':'background:rgba(34,197,94,0.15);color:#4ade80',
+                          'completed':'background:rgba(107,114,128,0.15);color:#9ca3af',
+                          'cancelled':'background:rgba(255,0,64,0.15);color:var(--neon-red)',
+                        }[booking.status]"
+                        x-text="booking.status.charAt(0).toUpperCase()+booking.status.slice(1)"></span>
+                    </td>
+                    <td style="padding:0.85rem 1.25rem;">
+                      <button style="background:rgba(255,0,64,0.1);border:1px solid rgba(255,0,64,0.2);color:var(--neon-red);font-size:0.78rem;font-weight:600;padding:0.25rem 0.65rem;border-radius:8px;cursor:pointer;">View</button>
+                    </td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Right Column -->
+        <div style="display:flex;flex-direction:column;gap:1.5rem;">
+          <!-- Quick Actions -->
+          <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,0,64,0.1);border-radius:16px;padding:1.25rem 1.5rem;">
+            <h3 style="font-family:'Playfair Display',serif;color:#fff;font-size:1rem;margin-bottom:1rem;">Quick Actions</h3>
+            <div style="display:flex;flex-direction:column;gap:0.6rem;">
+              <a href="events.html" class="quick-action"><span style="font-size:1.3rem;">📅</span><span style="font-size:0.875rem;">Add New Event</span></a>
+              <a href="inventory.html" class="quick-action"><span style="font-size:1.3rem;">📦</span><span style="font-size:0.875rem;">Check Inventory</span></a>
+              <a href="billing.html" class="quick-action"><span style="font-size:1.3rem;">💰</span><span style="font-size:0.875rem;">Generate Invoice</span></a>
+              <a href="staff.html" class="quick-action"><span style="font-size:1.3rem;">👥</span><span style="font-size:0.875rem;">Manage Staff</span></a>
+            </div>
+          </div>
+
+          <!-- Upcoming Events -->
+          <div style="background:rgba(255,0,64,0.05);border:1px solid rgba(255,0,64,0.15);border-radius:16px;padding:1.25rem 1.5rem;">
+            <h3 style="font-family:'Playfair Display',serif;color:var(--neon-red);font-size:1rem;margin-bottom:1rem;">Upcoming Events</h3>
+            <div style="display:flex;flex-direction:column;gap:0.75rem;">
+              <template x-for="event in upcomingEvents" :key="event.name">
+                <div style="display:flex;align-items:center;gap:0.75rem;">
+                  <div style="width:40px;height:40px;border-radius:10px;background:rgba(255,0,64,0.15);border:1px solid rgba(255,0,64,0.25);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;">
+                    <div style="color:var(--neon-red);font-size:0.78rem;font-weight:700;" x-text="event.day"></div>
+                    <div style="color:var(--text-muted);font-size:0.65rem;" x-text="event.month"></div>
+                  </div>
+                  <div>
+                    <div style="color:#fff;font-size:0.85rem;font-weight:500;" x-text="event.name"></div>
+                    <div style="color:var(--text-muted);font-size:0.75rem;" x-text="event.type"></div>
+                  </div>
+                </div>
+              </template>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+<script>
+  function adminDash() {
+    return {
+      sidebarOpen: false,
+      user: JSON.parse(localStorage.getItem('user') || 'null'),
+      get today() { return new Date().toLocaleDateString('en-IN', { weekday:'long', year:'numeric', month:'long', day:'numeric' }); },
+      statsCards: [
+        { icon:'📅', label:'Events This Month', value:'12', trend:+15 },
+        { icon:'📋', label:'Pending Bookings', value:'7', trend:+5 },
+        { icon:'💰', label:'Revenue (₹)', value:'2.4L', trend:+22 },
+        { icon:'👥', label:'Active Staff', value:'18', trend:0 },
+      ],
+      recentBookings: [
+        { id:1, name:'Anisha Krishnan', phone:'+91 8075707566', event:'Wedding', date:'28 Mar 2025', status:'new' },
+        { id:2, name:'Rajesh Menon', phone:'+91 9123456789', event:'Corporate', date:'30 Mar 2025', status:'contacted' },
+        { id:3, name:'Priya Thomas', phone:'+91 9345678901', event:'Birthday', date:'02 Apr 2025', status:'confirmed' },
+        { id:4, name:'Suresh Kumar', phone:'+91 9234567890', event:'Stage', date:'05 Apr 2025', status:'confirmed' },
+        { id:5, name:'Deepa Nair', phone:'+91 9456789012', event:'Wedding', date:'12 Apr 2025', status:'completed' },
+      ],
+      upcomingEvents: [
+        { day:'28', month:'MAR', name:'Krishnan Wedding', type:'Wedding + Catering' },
+        { day:'30', month:'MAR', name:'TechCorp Annual Day', type:'Corporate Event' },
+        { day:'02', month:'APR', name:'Athira Birthday', type:'Birthday Celebration' },
+        { day:'05', month:'APR', name:'Cultural Program', type:'Stage Decoration' },
+      ],
+      logout() {
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        localStorage.removeItem('user');
+        window.location.href = '../login.html';
+      },
+      async init() {
+        const token = localStorage.getItem('access_token');
+        if (!token) { window.location.href = '../login.html'; return; }
+        try {
+          const res = await fetch('/api/auth/me', { headers: { 'Authorization': 'Bearer ' + token } });
+          if (res.ok) {
+            this.user = await res.json();
+            if (this.user.role !== 'admin') window.location.href = '../staff/dashboard.html';
+          }
+        } catch (e) { /* demo mode */ }
+      }
+    };
+  }
+</script>
+</body>
+</html>

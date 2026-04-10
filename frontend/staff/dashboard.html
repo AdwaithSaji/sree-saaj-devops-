@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Staff Dashboard — Sree Saaj</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+  <link href="../static/css/neon.css" rel="stylesheet"/>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <style>
+    body { background:var(--bg-primary); }
+    .sidebar { width:240px; background:rgba(255,255,255,0.03); border-right:1px solid rgba(255,0,64,0.15); position:fixed; inset-y:0; left:0; z-index:40; display:flex; flex-direction:column; }
+    .main-area { flex:1; margin-left:240px; display:flex; flex-direction:column; }
+    .topbar { background:rgba(10,10,15,0.9); backdrop-filter:blur(12px); border-bottom:1px solid rgba(255,0,64,0.1); padding:1rem 1.5rem; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:30; }
+    .nav-link { display:flex; align-items:center; gap:0.75rem; padding:0.7rem 1rem; border-radius:10px; color:var(--text-muted); font-size:0.875rem; font-weight:500; text-decoration:none; transition:all 0.2s; }
+    .nav-link:hover { background:rgba(255,0,64,0.08); color:#fff; }
+    .nav-link.active { background:rgba(255,0,64,0.15); color:var(--neon-red); border-left:2px solid var(--neon-red); }
+    /* Calendar */
+    .cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
+    .cal-day { aspect-ratio:1; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:0.8rem; cursor:pointer; transition:all 0.2s; color:var(--text-muted); }
+    .cal-day:hover { background:rgba(255,0,64,0.1); color:#fff; }
+    .cal-day.today { background:var(--neon-red); color:#fff; box-shadow:0 0 10px var(--neon-red-glow); }
+    .cal-day.has-event { background:rgba(255,0,64,0.15); color:var(--neon-red); border:1px solid rgba(255,0,64,0.3); }
+    .cal-day.other-month { opacity:0.3; }
+    .task-item { display:flex; align-items:center; gap:0.75rem; padding:0.75rem; border-radius:10px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,0,64,0.08); margin-bottom:0.5rem; transition:all 0.2s; cursor:pointer; }
+    .task-item:hover { border-color:rgba(255,0,64,0.2); background:rgba(255,0,64,0.05); }
+    .task-item.done { opacity:0.5; }
+    .task-item.done .task-name { text-decoration:line-through; }
+    .check-circle { width:20px; height:20px; border-radius:50%; border:2px solid rgba(255,0,64,0.4); display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all 0.2s; }
+    .check-circle.checked { background:var(--neon-red); border-color:var(--neon-red); color:#fff; font-size:0.65rem; }
+    .priority-high { color:#ef4444; font-size:0.7rem; font-weight:700; }
+    .priority-med { color:#f59e0b; font-size:0.7rem; font-weight:700; }
+    .priority-low { color:#4ade80; font-size:0.7rem; font-weight:700; }
+  </style>
+</head>
+<body x-data="staffDash()" style="display:flex;min-height:100vh;">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div style="padding:1.5rem 1rem;border-bottom:1px solid rgba(255,0,64,0.1);">
+      <a href="../index.html" style="display:flex;align-items:center;gap:0.75rem;text-decoration:none;">
+        <img src="../static/images/saaj-logo.png" alt="Sree Saaj" style="height:36px;width:auto;filter:drop-shadow(0 0 6px rgba(255,0,64,0.5));" />
+        <div>
+          <div style="font-family:'Playfair Display',serif;color:var(--neon-red);font-size:0.95rem;font-weight:700;">Sree Saaj</div>
+          <div style="color:var(--text-muted);font-size:0.7rem;">Staff Portal</div>
+        </div>
+      </a>
+    </div>
+    <nav style="flex:1;padding:1rem;overflow-y:auto;">
+      <a href="dashboard.html" class="nav-link active">🏠 My Dashboard</a>
+      <a href="#" class="nav-link">📅 My Schedule</a>
+      <a href="#" class="nav-link">✅ My Tasks</a>
+      <a href="#" class="nav-link">📋 Assigned Events</a>
+      <div style="height:1px;background:rgba(255,0,64,0.1);margin:0.75rem 0;"></div>
+      <a href="../index.html" class="nav-link">🌐 View Website</a>
+    </nav>
+    <div style="padding:1rem;border-top:1px solid rgba(255,0,64,0.1);">
+      <div style="display:flex;align-items:center;gap:0.75rem;">
+        <div style="width:34px;height:34px;border-radius:50%;background:rgba(255,0,64,0.15);border:1px solid rgba(255,0,64,0.3);display:flex;align-items:center;justify-content:center;color:var(--neon-red);font-weight:700;font-size:0.85rem;" x-text="user?.full_name?.charAt(0)||'S'"></div>
+        <div style="flex:1;min-width:0;">
+          <div style="color:#fff;font-size:0.85rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" x-text="user?.full_name||'Staff Member'"></div>
+          <div style="color:var(--neon-red);font-size:0.7rem;">staff</div>
+        </div>
+        <button @click="logout()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;" title="Logout">⏏</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main-area">
+    <header class="topbar">
+      <div>
+        <h1 style="font-family:'Playfair Display',serif;font-size:1.3rem;color:#fff;">My Dashboard</h1>
+        <p style="color:var(--text-muted);font-size:0.75rem;" x-text="'Welcome back, ' + (user?.full_name || 'Staff') + ' · ' + today"></p>
+      </div>
+      <div style="display:flex;align-items:center;gap:0.75rem;">
+        <span style="background:rgba(255,0,64,0.1);border:1px solid rgba(255,0,64,0.2);color:var(--neon-red);font-size:0.75rem;padding:0.3rem 0.75rem;border-radius:20px;font-weight:600;">
+          🔴 <span x-text="myEvents.filter(e=>e.status==='upcoming').length"></span> upcoming
+        </span>
+      </div>
+    </header>
+
+    <main style="flex:1;padding:1.5rem;">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
+
+        <!-- Calendar -->
+        <div class="glass" style="padding:1.5rem;grid-column:span 2;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+            <h3 style="font-family:'Playfair Display',serif;color:#fff;font-size:1.1rem;">
+              <span x-text="monthName"></span> <span x-text="calYear" style="color:var(--neon-red);"></span>
+            </h3>
+            <div style="display:flex;gap:0.5rem;">
+              <button @click="prevMonth()" style="background:rgba(255,0,64,0.1);border:1px solid rgba(255,0,64,0.2);color:var(--neon-red);border-radius:8px;padding:0.25rem 0.6rem;cursor:pointer;">‹</button>
+              <button @click="nextMonth()" style="background:rgba(255,0,64,0.1);border:1px solid rgba(255,0,64,0.2);color:var(--neon-red);border-radius:8px;padding:0.25rem 0.6rem;cursor:pointer;">›</button>
+            </div>
+          </div>
+          <!-- Day Headers -->
+          <div class="cal-grid" style="margin-bottom:0.5rem;">
+            <template x-for="d in ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']" :key="d">
+              <div style="text-align:center;font-size:0.72rem;font-weight:700;color:var(--text-muted);padding:0.25rem 0;" x-text="d"></div>
+            </template>
+          </div>
+          <!-- Days -->
+          <div class="cal-grid">
+            <template x-for="day in calDays" :key="day.key">
+              <div class="cal-day" :class="{ 'today': day.isToday, 'has-event': day.hasEvent, 'other-month': !day.currentMonth }"
+                   x-text="day.num"
+                   @click="day.hasEvent && selectDate(day)"></div>
+            </template>
+          </div>
+          <!-- Legend -->
+          <div style="display:flex;gap:1.5rem;margin-top:1rem;">
+            <span style="display:flex;align-items:center;gap:0.4rem;font-size:0.75rem;color:var(--text-muted);"><span style="width:10px;height:10px;border-radius:50%;background:var(--neon-red);display:inline-block;"></span>Today</span>
+            <span style="display:flex;align-items:center;gap:0.4rem;font-size:0.75rem;color:var(--text-muted);"><span style="width:10px;height:10px;border-radius:50%;background:rgba(255,0,64,0.3);display:inline-block;"></span>Event</span>
+          </div>
+        </div>
+
+        <!-- Upcoming Events (right column) -->
+        <div style="display:flex;flex-direction:column;gap:1.5rem;">
+          <div class="glass" style="padding:1.5rem;">
+            <h3 style="font-family:'Playfair Display',serif;color:#fff;font-size:1rem;margin-bottom:1rem;">My Events</h3>
+            <div style="display:flex;flex-direction:column;gap:0.75rem;">
+              <template x-for="ev in myEvents" :key="ev.id">
+                <div style="background:rgba(255,0,64,0.05);border:1px solid rgba(255,0,64,0.12);border-radius:10px;padding:0.85rem;">
+                  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.3rem;">
+                    <div style="color:#fff;font-size:0.88rem;font-weight:500;" x-text="ev.name"></div>
+                    <span style="display:inline-block;padding:0.15rem 0.5rem;border-radius:10px;font-size:0.68rem;font-weight:700;"
+                      :style="ev.status==='upcoming'?'background:rgba(255,0,64,0.15);color:var(--neon-red)':'background:rgba(34,197,94,0.15);color:#4ade80'"
+                      x-text="ev.status"></span>
+                  </div>
+                  <div style="color:var(--text-muted);font-size:0.78rem;" x-text="'📅 ' + ev.date + ' · ' + ev.venue"></div>
+                  <div style="color:var(--text-muted);font-size:0.78rem;margin-top:0.2rem;" x-text="'🎭 ' + ev.type + ' · ' + ev.role"></div>
+                </div>
+              </template>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tasks -->
+        <div class="glass" style="padding:1.5rem;grid-column:span 2;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+            <h3 style="font-family:'Playfair Display',serif;color:#fff;font-size:1rem;">Today's Tasks</h3>
+            <span style="color:var(--text-muted);font-size:0.8rem;" x-text="tasks.filter(t=>t.done).length + '/' + tasks.length + ' done'"></span>
+          </div>
+          <div>
+            <template x-for="task in tasks" :key="task.id">
+              <div class="task-item" :class="task.done?'done':''" @click="task.done=!task.done">
+                <div class="check-circle" :class="task.done?'checked':''">
+                  <span x-show="task.done">✓</span>
+                </div>
+                <div style="flex:1;">
+                  <div class="task-name" style="color:#fff;font-size:0.88rem;" x-text="task.name"></div>
+                  <div style="color:var(--text-muted);font-size:0.75rem;" x-text="task.event"></div>
+                </div>
+                <span :class="task.priority==='high'?'priority-high':task.priority==='medium'?'priority-med':'priority-low'"
+                      x-text="task.priority.toUpperCase()"></span>
+              </div>
+            </template>
+          </div>
+        </div>
+
+        <!-- Attendance / Quick Info -->
+        <div class="glass" style="padding:1.5rem;">
+          <h3 style="font-family:'Playfair Display',serif;color:#fff;font-size:1rem;margin-bottom:1rem;">Quick Actions</h3>
+          <div style="display:flex;flex-direction:column;gap:0.75rem;">
+            <button @click="markAttendance()" class="btn-neon-solid" style="padding:0.75rem;font-size:0.85rem;width:100%;" x-text="attendanceMarked?'✓ Attendance Marked':'Mark Attendance'"></button>
+            <a href="https://wa.me/918075707566" target="_blank"
+               style="display:flex;align-items:center;justify-content:center;gap:0.5rem;background:#25d366;color:#fff;padding:0.75rem;border-radius:50px;font-weight:700;font-size:0.85rem;text-decoration:none;">
+              💬 Message Manager
+            </a>
+            <div class="glass" style="padding:1rem;text-align:center;">
+              <div style="color:var(--text-muted);font-size:0.75rem;margin-bottom:0.3rem;">This Month</div>
+              <div style="color:var(--neon-red);font-size:1.5rem;font-weight:700;">24</div>
+              <div style="color:var(--text-muted);font-size:0.75rem;">Days Worked</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+<script>
+  function staffDash() {
+    const now = new Date();
+    return {
+      user: JSON.parse(localStorage.getItem('user')||'null'),
+      attendanceMarked: false,
+      calMonth: now.getMonth(),
+      calYear: now.getFullYear(),
+      get today() { return now.toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'}); },
+      get monthName() { return new Date(this.calYear,this.calMonth,1).toLocaleString('default',{month:'long'}); },
+      get calDays() {
+        const days=[];
+        const first=new Date(this.calYear,this.calMonth,1);
+        const last=new Date(this.calYear,this.calMonth+1,0);
+        const eventDates=['28','30','02','05'];
+        // pad start
+        for(let i=0;i<first.getDay();i++){
+          const d=new Date(this.calYear,this.calMonth,-(first.getDay()-1-i));
+          days.push({key:'prev'+i,num:d.getDate(),isToday:false,hasEvent:false,currentMonth:false});
+        }
+        for(let d=1;d<=last.getDate();d++){
+          const isToday=d===now.getDate()&&this.calMonth===now.getMonth()&&this.calYear===now.getFullYear();
+          const hasEvent=eventDates.includes(String(d).padStart(2,'0'));
+          days.push({key:'cur'+d,num:d,isToday,hasEvent,currentMonth:true,date:d});
+        }
+        while(days.length%7!==0){const l=days.length;days.push({key:'next'+l,num:days.length-last.getDate()-first.getDay()+1,isToday:false,hasEvent:false,currentMonth:false});}
+        return days;
+      },
+      prevMonth(){if(this.calMonth===0){this.calMonth=11;this.calYear--;}else{this.calMonth--;}},
+      nextMonth(){if(this.calMonth===11){this.calMonth=0;this.calYear++;}else{this.calMonth++;}},
+      selectDate(day){alert('Event on day '+day.num);},
+      markAttendance(){this.attendanceMarked=true;},
+      myEvents:[
+        {id:1,name:'Krishnan Wedding',type:'Wedding',date:'28 Mar 2025',venue:'Grand Palace',status:'upcoming',role:'Decoration Lead'},
+        {id:2,name:'TechCorp Annual Day',type:'Corporate',date:'30 Mar 2025',venue:'Hotel Meridian',status:'upcoming',role:'Setup Support'},
+        {id:3,name:'Athira Birthday',type:'Birthday',date:'02 Apr 2025',venue:'Home, Palakkad',status:'upcoming',role:'Catering'},
+        {id:4,name:'Deepa-Arun Wedding',type:'Wedding',date:'12 Mar 2025',venue:'Sree Muruga Hall',status:'completed',role:'Decoration'},
+      ],
+      tasks:[
+        {id:1,name:'Load fairy lights into van',event:'Krishnan Wedding (28 Mar)',priority:'high',done:false},
+        {id:2,name:'Confirm flower order with vendor',event:'Krishnan Wedding (28 Mar)',priority:'high',done:false},
+        {id:3,name:'Collect stage frames from store',event:'TechCorp Annual Day (30 Mar)',priority:'medium',done:true},
+        {id:4,name:'Check table cloth stock',event:'General',priority:'low',done:false},
+        {id:5,name:'Update inventory after last event',event:'Deepa-Arun Wedding',priority:'medium',done:true},
+      ],
+      logout(){localStorage.clear();window.location.href='../login.html';},
+      init(){
+        if(!localStorage.getItem('access_token')){window.location.href='../login.html';return;}
+        const u=localStorage.getItem('user');
+        if(u)this.user=JSON.parse(u);
+      }
+    };
+  }
+</script>
+</body>
+</html>

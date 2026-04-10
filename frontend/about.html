@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>About Us — Sree Saaj Events & Caterers</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+  <link href="static/css/neon.css" rel="stylesheet"/>
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet"/>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <style>
+    .scanline { position:fixed; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,transparent,rgba(255,0,64,0.3),transparent); animation:scanline 8s linear infinite; pointer-events:none; z-index:9999; opacity:0.4; }
+    .timeline-item { position:relative; padding-left:2.5rem; padding-bottom:2.5rem; }
+    .timeline-item::before { content:''; position:absolute; left:0; top:8px; width:12px; height:12px; background:var(--neon-red); border-radius:50%; box-shadow:0 0 10px var(--neon-red-glow); }
+    .timeline-item::after { content:''; position:absolute; left:5px; top:22px; height:calc(100% - 8px); width:2px; background:linear-gradient(to bottom, var(--neon-red), transparent); }
+    .timeline-item:last-child::after { display:none; }
+    .team-card { transition:all 0.3s; }
+    .team-card:hover { border-color:var(--neon-red) !important; box-shadow:0 0 30px var(--neon-red-glow); transform:translateY(-4px); }
+    .value-card { transition:all 0.3s; }
+    .value-card:hover { box-shadow:0 0 20px var(--neon-red-glow); }
+    .stat-num { font-size:3rem; font-weight:700; color:var(--neon-red); text-shadow:0 0 20px var(--neon-red-glow); }
+  </style>
+</head>
+<body class="grid-bg" x-data="aboutApp()">
+<div class="scanline"></div>
+
+<!-- Navbar -->
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="index.html" class="navbar-brand">
+      <img src="static/images/saaj-logo.png" alt="Sree Saaj" style="height:40px;width:auto;filter:drop-shadow(0 0 8px rgba(255,0,64,0.5));"/>
+    </a>
+    <div class="navbar-links">
+      <a href="index.html">Home</a>
+      <a href="about.html" class="active">About</a>
+      <a href="services.html">Services</a>
+      <a href="menu.html">Menu</a>
+      <a href="gallery.html">Gallery</a>
+      <a href="booking.html">Booking</a>
+      <a href="estimator.html">Estimator</a>
+      <a href="login.html" class="btn-neon" style="padding:0.4rem 1.2rem;">Login</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section style="padding:7rem 1.5rem 4rem; text-align:center; position:relative; overflow:hidden;">
+  <div style="position:absolute;top:20%;left:10%;width:400px;height:400px;background:radial-gradient(circle,rgba(255,0,64,0.12),transparent 70%);border-radius:50%;pointer-events:none;"></div>
+  <p class="neon-text-subtle" style="font-size:0.75rem;letter-spacing:0.3em;text-transform:uppercase;margin-bottom:1rem;" data-aos="fade-down">Our Story</p>
+  <h1 style="font-family:'Playfair Display',serif;font-size:clamp(2.5rem,6vw,4.5rem);font-weight:700;color:#fff;margin-bottom:1.5rem;" data-aos="fade-up">
+    Crafting Moments<br/><em style="color:var(--neon-red);text-shadow:0 0 30px rgba(255,0,64,0.5);">Since 2010</em>
+  </h1>
+  <p style="max-width:650px;margin:0 auto;color:var(--text-muted);font-size:1.1rem;line-height:1.8;" data-aos="fade-up" data-aos-delay="100">
+    From humble beginnings in Kayamkulam to becoming Kerala's most trusted event management and catering company — our journey is built on passion, precision, and the joy of celebration.
+  </p>
+</section>
+
+<!-- Stats -->
+<section style="max-width:1100px;margin:0 auto;padding:3rem 1.5rem;" data-aos="fade-up">
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1.5rem;">
+    <template x-for="stat in stats" :key="stat.label">
+      <div class="glass" style="padding:2rem;text-align:center;">
+        <div class="stat-num" x-text="stat.value"></div>
+        <div style="color:var(--text-muted);font-size:0.85rem;margin-top:0.4rem;" x-text="stat.label"></div>
+      </div>
+    </template>
+  </div>
+</section>
+
+<!-- Story Section -->
+<section style="max-width:1100px;margin:0 auto;padding:4rem 1.5rem;">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;" data-aos="fade-up">
+    <div>
+      <p class="neon-text-subtle" style="font-size:0.75rem;letter-spacing:0.2em;text-transform:uppercase;margin-bottom:0.8rem;">Who We Are</p>
+      <h2 style="font-family:'Playfair Display',serif;font-size:2.2rem;color:#fff;margin-bottom:1.5rem;">More Than an Event Company</h2>
+      <p style="color:var(--text-muted);line-height:1.9;margin-bottom:1rem;">
+        Sree Saaj Events & Caterers is based in <strong style="color:#fff;">Kayamkulam, Kerala</strong> — a company built with a single mission: to make every celebration as special as the memories it creates. What started as a small wedding catering venture has grown into a full-service event management powerhouse serving all of Kerala.
+      </p>
+      <p style="color:var(--text-muted);line-height:1.9;margin-bottom:1rem;">
+        Today, our team of dedicated professionals handles everything from intimate family gatherings to grand corporate galas — always with the same meticulous attention to detail and heartfelt care.
+      </p>
+      <p style="color:var(--text-muted);line-height:1.9;">
+        We are proud to be the trusted event partner for families, businesses, and institutions across Kerala, bringing authentic traditions and contemporary elegance together. Call us at <strong style="color:var(--neon-red);">+91 8075707566</strong> or <strong style="color:var(--neon-red);">+91 9447334172</strong>.
+      </p>
+    </div>
+    <div>
+      <div class="glass-strong" style="padding:2.5rem;position:relative;">
+        <div style="position:absolute;top:0;left:0;width:40px;height:40px;border-top:2px solid var(--neon-red);border-left:2px solid var(--neon-red);border-radius:4px 0 0 0;"></div>
+        <div style="position:absolute;bottom:0;right:0;width:40px;height:40px;border-bottom:2px solid var(--neon-red);border-right:2px solid var(--neon-red);border-radius:0 0 4px 0;"></div>
+        <div style="font-size:4rem;margin-bottom:1rem;">🏆</div>
+        <h3 style="font-family:'Playfair Display',serif;font-size:1.5rem;color:#fff;margin-bottom:1rem;">Awards & Recognition</h3>
+        <ul style="list-style:none;">
+          <li style="color:var(--text-muted);padding:0.5rem 0;border-bottom:1px solid rgba(255,0,64,0.1);">🌟 Best Catering Company — Kerala Events Award 2023</li>
+          <li style="color:var(--text-muted);padding:0.5rem 0;border-bottom:1px solid rgba(255,0,64,0.1);">🌟 Top Wedding Decorator — Kayamkulam Business Forum 2022</li>
+          <li style="color:var(--text-muted);padding:0.5rem 0;border-bottom:1px solid rgba(255,0,64,0.1);">🌟 Excellence in Corporate Events — 2021, 2022</li>
+          <li style="color:var(--text-muted);padding:0.5rem 0;">🌟 Certified FSSAI Food Business Operator</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Values -->
+<section style="background:rgba(255,0,64,0.03);border-top:1px solid rgba(255,0,64,0.1);border-bottom:1px solid rgba(255,0,64,0.1);padding:5rem 1.5rem;margin:2rem 0;">
+  <div style="max-width:1100px;margin:0 auto;">
+    <div style="text-align:center;margin-bottom:3rem;" data-aos="fade-up">
+      <p class="neon-text-subtle" style="font-size:0.75rem;letter-spacing:0.2em;text-transform:uppercase;margin-bottom:0.8rem;">What Drives Us</p>
+      <h2 style="font-family:'Playfair Display',serif;font-size:2.2rem;color:#fff;">Our Core Values</h2>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.5rem;">
+      <template x-for="val in values" :key="val.title">
+        <div class="glass value-card" style="padding:2rem;" data-aos="fade-up">
+          <div style="font-size:2.5rem;margin-bottom:1rem;" x-text="val.icon"></div>
+          <h3 style="font-family:'Playfair Display',serif;color:var(--neon-red);font-size:1.2rem;margin-bottom:0.6rem;" x-text="val.title"></h3>
+          <p style="color:var(--text-muted);font-size:0.9rem;line-height:1.7;" x-text="val.desc"></p>
+        </div>
+      </template>
+    </div>
+  </div>
+</section>
+
+<!-- Timeline -->
+<section style="max-width:800px;margin:0 auto;padding:5rem 1.5rem;">
+  <div style="text-align:center;margin-bottom:3rem;" data-aos="fade-up">
+    <p class="neon-text-subtle" style="font-size:0.75rem;letter-spacing:0.2em;text-transform:uppercase;margin-bottom:0.8rem;">Our Journey</p>
+    <h2 style="font-family:'Playfair Display',serif;font-size:2.2rem;color:#fff;">Milestones</h2>
+  </div>
+  <div>
+    <template x-for="item in timeline" :key="item.year">
+      <div class="timeline-item" data-aos="fade-left">
+        <div style="color:var(--neon-red);font-size:0.8rem;font-weight:700;letter-spacing:0.1em;margin-bottom:0.3rem;" x-text="item.year"></div>
+        <h4 style="color:#fff;font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:0.4rem;" x-text="item.title"></h4>
+        <p style="color:var(--text-muted);font-size:0.9rem;" x-text="item.desc"></p>
+      </div>
+    </template>
+  </div>
+</section>
+
+<!-- Team -->
+<section style="max-width:1100px;margin:0 auto;padding:2rem 1.5rem 5rem;">
+  <div style="text-align:center;margin-bottom:3rem;" data-aos="fade-up">
+    <p class="neon-text-subtle" style="font-size:0.75rem;letter-spacing:0.2em;text-transform:uppercase;margin-bottom:0.8rem;">The People Behind</p>
+    <h2 style="font-family:'Playfair Display',serif;font-size:2.2rem;color:#fff;">Meet Our Team</h2>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.5rem;">
+    <template x-for="member in team" :key="member.name">
+      <div class="glass team-card" style="padding:2rem;text-align:center;" data-aos="fade-up">
+        <div style="width:72px;height:72px;border-radius:50%;background:var(--neon-red);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-size:1.8rem;box-shadow:0 0 20px var(--neon-red-glow);" x-text="member.avatar"></div>
+        <h3 style="font-family:'Playfair Display',serif;color:#fff;font-size:1.1rem;margin-bottom:0.2rem;" x-text="member.name"></h3>
+        <div style="color:var(--neon-red);font-size:0.8rem;margin-bottom:0.6rem;" x-text="member.role"></div>
+        <p style="color:var(--text-muted);font-size:0.85rem;" x-text="member.bio"></p>
+      </div>
+    </template>
+  </div>
+</section>
+
+<!-- CTA -->
+<section style="background:linear-gradient(135deg,rgba(255,0,64,0.08),rgba(255,0,64,0.03));border-top:1px solid rgba(255,0,64,0.15);padding:5rem 1.5rem;text-align:center;">
+  <h2 style="font-family:'Playfair Display',serif;font-size:2.5rem;color:#fff;margin-bottom:1rem;" data-aos="fade-up">Ready to Create Magic?</h2>
+  <p style="color:var(--text-muted);margin-bottom:2rem;" data-aos="fade-up" data-aos-delay="100">Let us bring your vision to life. Contact us today.</p>
+  <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;" data-aos="fade-up" data-aos-delay="200">
+    <a href="booking.html" class="btn-neon-solid">Book a Consultation</a>
+    <a href="https://wa.me/918075707566" target="_blank" class="btn-neon">💬 WhatsApp Us</a>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer style="background:rgba(0,0,0,0.5);border-top:1px solid rgba(255,0,64,0.15);padding:2rem 1.5rem;text-align:center;">
+  <a href="index.html" style="display:inline-flex;align-items:center;gap:0.75rem;text-decoration:none;margin-bottom:1rem;">
+    <div class="logo-badge">SAAJ</div>
+    <span style="font-family:'Playfair Display',serif;color:var(--neon-red);font-weight:700;">Sree Saaj Events & Caterers</span>
+  </a>
+  <p style="color:var(--text-muted);font-size:0.85rem;">© 2024 Sree Saaj Events & Caterers. All rights reserved.</p>
+</footer>
+
+<!-- WhatsApp Float -->
+<a href="https://wa.me/918075707566" target="_blank" class="whatsapp-float">
+  <svg width="28" height="28" fill="white" viewBox="0 0 24 24">
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+  </svg>
+</a>
+
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+  AOS.init({ duration:700, once:true });
+  function aboutApp() {
+    return {
+      stats: [
+        { value:'14+', label:'Years of Experience' },
+        { value:'2000+', label:'Events Delivered' },
+        { value:'50+', label:'Team Members' },
+        { value:'98%', label:'Client Satisfaction' },
+      ],
+      values: [
+        { icon:'💎', title:'Quality First', desc:'We never compromise on the quality of food, decoration, or service — every detail matters.' },
+        { icon:'🤝', title:'Trust & Integrity', desc:'Transparent pricing, honest communication, and commitments we always keep.' },
+        { icon:'❤️', title:'Heartfelt Care', desc:"We treat every event as if it were our own family celebration." },
+        { icon:'⚡', title:'Precision & Punctuality', desc:"Flawless execution, on time, every time — because moments can't be postponed." },
+      ],
+      timeline: [
+        { year:'2010', title:'The Beginning', desc:'Saajan K. Nair starts a small wedding catering service from Kayamkulam with 5 staff members.' },
+        { year:'2013', title:'Decoration Division Launched', desc:'Expanded into full wedding decoration, quickly becoming the most trusted name in Kayamkulam and Alappuzha district.' },
+        { year:'2016', title:'Corporate Events', desc:'Signed first corporate contract with TechCorp Kerala. Now handling 20+ corporates annually.' },
+        { year:'2019', title:'Expanded to All Kerala', desc:'Opened coordination offices in Kochi and Kozhikode. Now serving all 14 districts.' },
+        { year:'2022', title:'Award-Winning Company', desc:'Received Best Catering Company award at Kerala Events Awards 2022 and 2023.' },
+        { year:'2024', title:'Going Digital', desc:'Launched full digital platform for online bookings, event management, and customer communication.' },
+      ],
+      team: [
+        { avatar:'👨‍💼', name:'Saajan K. Nair', role:'Founder & CEO', bio:"15+ years of passion for creating perfect events. Visionary behind Sree Saaj's growth." },
+        { avatar:'👩‍🍳', name:'Lakshmi R.', role:'Head Chef', bio:'Specialist in traditional Kerala cuisine and multi-cuisine buffets. 12 years of culinary excellence.' },
+        { avatar:'🎨', name:'Arun Prakash', role:'Creative Director', bio:'Award-winning decorator with expertise in floral design, lighting, and themed setups.' },
+        { avatar:'📋', name:'Divya Menon', role:'Event Coordinator', bio:'Master organizer ensuring every event runs without a hitch from planning to execution.' },
+      ]
+    };
+  }
+</script>
+</body>
+</html>

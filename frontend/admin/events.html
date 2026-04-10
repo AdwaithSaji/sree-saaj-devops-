@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Events — Sree Saaj Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+  <link href="../static/css/neon.css" rel="stylesheet"/>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <style>
+    body { background:var(--bg-primary); }
+    .admin-layout { display:flex; min-height:100vh; }
+    .sidebar { width:240px; background:rgba(255,255,255,0.03); border-right:1px solid rgba(255,0,64,0.15); position:fixed; inset-y:0; left:0; z-index:40; display:flex; flex-direction:column; }
+    .main-area { flex:1; margin-left:240px; display:flex; flex-direction:column; }
+    .topbar { background:rgba(10,10,15,0.9); backdrop-filter:blur(12px); border-bottom:1px solid rgba(255,0,64,0.1); padding:1rem 1.5rem; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:30; }
+    .nav-link { display:flex; align-items:center; gap:0.75rem; padding:0.7rem 1rem; border-radius:10px; color:var(--text-muted); font-size:0.875rem; font-weight:500; text-decoration:none; transition:all 0.2s; }
+    .nav-link:hover { background:rgba(255,0,64,0.08); color:#fff; }
+    .nav-link.active { background:rgba(255,0,64,0.15); color:var(--neon-red); border-left:2px solid var(--neon-red); }
+    .badge-status { display:inline-block; padding:0.2rem 0.6rem; border-radius:20px; font-size:0.72rem; font-weight:700; }
+    .badge-upcoming { background:rgba(59,130,246,0.15); color:#60a5fa; }
+    .badge-ongoing { background:rgba(255,0,64,0.15); color:var(--neon-red); }
+    .badge-completed { background:rgba(34,197,94,0.15); color:#4ade80; }
+    .badge-cancelled { background:rgba(107,114,128,0.15); color:#9ca3af; }
+    .action-btn { padding:0.3rem 0.75rem; border-radius:8px; font-size:0.78rem; font-weight:600; cursor:pointer; border:none; transition:all 0.2s; }
+    input, select, textarea { background:rgba(255,255,255,0.05); border:1px solid rgba(255,0,64,0.2); color:#fff; border-radius:10px; padding:0.6rem 1rem; width:100%; font-size:0.9rem; outline:none; transition:border-color 0.2s; }
+    input:focus, select:focus, textarea:focus { border-color:var(--neon-red); box-shadow:0 0 0 2px rgba(255,0,64,0.1); }
+    input::placeholder, textarea::placeholder { color:var(--text-muted); }
+    select option { background:#1a1a2e; }
+    .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:100; display:flex; align-items:center; justify-content:center; padding:1rem; }
+    .modal-box { background:#0f0f1a; border:1px solid rgba(255,0,64,0.25); border-radius:20px; padding:2rem; max-width:560px; width:100%; max-height:90vh; overflow-y:auto; }
+  </style>
+</head>
+<body x-data="eventsAdmin()">
+
+<div class="admin-layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div style="padding:1.5rem 1rem;border-bottom:1px solid rgba(255,0,64,0.1);">
+      <a href="../index.html" style="display:flex;align-items:center;gap:0.75rem;text-decoration:none;">
+        <img src="../static/images/saaj-logo.png" alt="Sree Saaj" style="height:36px;width:auto;filter:drop-shadow(0 0 6px rgba(255,0,64,0.5));" />
+        <div>
+          <div style="font-family:'Playfair Display',serif;color:var(--neon-red);font-size:0.95rem;font-weight:700;">Sree Saaj</div>
+          <div style="color:var(--text-muted);font-size:0.7rem;">Admin Panel</div>
+        </div>
+      </a>
+    </div>
+    <nav style="flex:1;padding:1rem;overflow-y:auto;">
+      <a href="dashboard.html" class="nav-link">📊 Dashboard</a>
+      <a href="events.html" class="nav-link active">📅 Events</a>
+      <a href="#" class="nav-link">📋 Bookings</a>
+      <a href="inventory.html" class="nav-link">📦 Inventory</a>
+      <a href="billing.html" class="nav-link">💰 Billing</a>
+      <a href="staff.html" class="nav-link">👥 Staff</a>
+      <div style="height:1px;background:rgba(255,0,64,0.1);margin:0.75rem 0;"></div>
+      <a href="../gallery.html" class="nav-link">🖼️ Gallery</a>
+      <a href="../menu.html" class="nav-link">🍽️ Menu</a>
+      <div style="height:1px;background:rgba(255,0,64,0.1);margin:0.75rem 0;"></div>
+      <a href="../index.html" class="nav-link">🌐 View Website</a>
+    </nav>
+    <div style="padding:1rem;border-top:1px solid rgba(255,0,64,0.1);">
+      <div style="display:flex;align-items:center;gap:0.75rem;">
+        <div style="width:34px;height:34px;border-radius:50%;background:rgba(255,0,64,0.15);border:1px solid rgba(255,0,64,0.3);display:flex;align-items:center;justify-content:center;color:var(--neon-red);font-weight:700;font-size:0.85rem;" x-text="user?.full_name?.charAt(0)||'A'"></div>
+        <div style="flex:1;min-width:0;">
+          <div style="color:#fff;font-size:0.85rem;font-weight:500;truncate;" x-text="user?.full_name||'Admin'"></div>
+          <div style="color:var(--neon-red);font-size:0.7rem;" x-text="user?.role||'admin'"></div>
+        </div>
+        <button @click="logout()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;padding:0.25rem;" title="Logout">⏏</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main-area">
+    <header class="topbar">
+      <div>
+        <h1 style="font-family:'Playfair Display',serif;font-size:1.3rem;color:#fff;">Events</h1>
+        <p style="color:var(--text-muted);font-size:0.75rem;" x-text="'Manage all events · ' + events.length + ' total'"></p>
+      </div>
+      <button @click="openModal()" class="btn-neon-solid" style="padding:0.6rem 1.2rem;font-size:0.85rem;">+ Add Event</button>
+    </header>
+
+    <main style="flex:1;padding:1.5rem;">
+      <!-- Filters -->
+      <div style="display:flex;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap;">
+        <input x-model="search" placeholder="Search events..." style="max-width:280px;"/>
+        <select x-model="statusFilter">
+          <option value="">All Statuses</option>
+          <option value="upcoming">Upcoming</option>
+          <option value="ongoing">Ongoing</option>
+          <option value="completed">Completed</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+        <select x-model="typeFilter">
+          <option value="">All Types</option>
+          <option value="wedding">Wedding</option>
+          <option value="birthday">Birthday</option>
+          <option value="corporate">Corporate</option>
+          <option value="funeral">Funeral</option>
+          <option value="stage">Stage</option>
+          <option value="catering">Catering</option>
+          <option value="custom">Custom</option>
+        </select>
+      </div>
+
+      <!-- Events Table -->
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,0,64,0.1);border-radius:16px;overflow:hidden;">
+        <table style="width:100%;border-collapse:collapse;">
+          <thead>
+            <tr style="border-bottom:1px solid rgba(255,0,64,0.1);">
+              <th style="text-align:left;padding:0.85rem 1.25rem;color:var(--text-muted);font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Client / Event</th>
+              <th style="text-align:left;padding:0.85rem 1.25rem;color:var(--text-muted);font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Type</th>
+              <th style="text-align:left;padding:0.85rem 1.25rem;color:var(--text-muted);font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Date</th>
+              <th style="text-align:left;padding:0.85rem 1.25rem;color:var(--text-muted);font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Venue</th>
+              <th style="text-align:left;padding:0.85rem 1.25rem;color:var(--text-muted);font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Status</th>
+              <th style="text-align:left;padding:0.85rem 1.25rem;color:var(--text-muted);font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="ev in filteredEvents" :key="ev.id">
+              <tr style="border-bottom:1px solid rgba(255,255,255,0.04);transition:background 0.2s;" onmouseover="this.style.background='rgba(255,0,64,0.04)'" onmouseout="this.style.background='transparent'">
+                <td style="padding:1rem 1.25rem;">
+                  <div style="color:#fff;font-size:0.9rem;font-weight:500;" x-text="ev.clientName"></div>
+                  <div style="color:var(--text-muted);font-size:0.78rem;" x-text="ev.name"></div>
+                </td>
+                <td style="padding:1rem 1.25rem;color:var(--text-muted);font-size:0.85rem;" x-text="ev.type"></td>
+                <td style="padding:1rem 1.25rem;color:var(--text-muted);font-size:0.85rem;" x-text="ev.date"></td>
+                <td style="padding:1rem 1.25rem;color:var(--text-muted);font-size:0.85rem;" x-text="ev.venue"></td>
+                <td style="padding:1rem 1.25rem;">
+                  <span class="badge-status"
+                    :class="{ 'badge-upcoming': ev.status==='upcoming', 'badge-ongoing': ev.status==='ongoing', 'badge-completed': ev.status==='completed', 'badge-cancelled': ev.status==='cancelled' }"
+                    x-text="ev.status.charAt(0).toUpperCase()+ev.status.slice(1)"></span>
+                </td>
+                <td style="padding:1rem 1.25rem;">
+                  <div style="display:flex;gap:0.5rem;">
+                    <button @click="editEvent(ev)" class="action-btn" style="background:rgba(59,130,246,0.15);color:#60a5fa;">Edit</button>
+                    <button @click="deleteEvent(ev.id)" class="action-btn" style="background:rgba(255,0,64,0.1);color:var(--neon-red);">Delete</button>
+                  </div>
+                </td>
+              </tr>
+            </template>
+            <tr x-show="filteredEvents.length===0">
+              <td colspan="6" style="padding:3rem;text-align:center;color:var(--text-muted);">No events found.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Add/Edit Modal -->
+<div class="modal-overlay" x-show="showModal" x-cloak @click.self="showModal=false" style="display:none;">
+  <div class="modal-box">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
+      <h3 style="font-family:'Playfair Display',serif;color:#fff;font-size:1.3rem;" x-text="editMode ? 'Edit Event' : 'Add New Event'"></h3>
+      <button @click="showModal=false" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1.2rem;">✕</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:1rem;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div><label style="color:var(--text-muted);font-size:0.8rem;display:block;margin-bottom:0.3rem;">Client Name</label><input x-model="form.clientName" placeholder="Anisha Krishnan"/></div>
+        <div><label style="color:var(--text-muted);font-size:0.8rem;display:block;margin-bottom:0.3rem;">Phone</label><input x-model="form.phone" placeholder="+91 8075707566"/></div>
+      </div>
+      <div><label style="color:var(--text-muted);font-size:0.8rem;display:block;margin-bottom:0.3rem;">Event Name</label><input x-model="form.name" placeholder="Krishnan Wedding Reception"/></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div>
+          <label style="color:var(--text-muted);font-size:0.8rem;display:block;margin-bottom:0.3rem;">Event Type</label>
+          <select x-model="form.type">
+            <option value="">Select type</option>
+            <option>Wedding</option><option>Birthday</option><option>Corporate</option>
+            <option>Funeral</option><option>Stage</option><option>Catering</option><option>Custom</option>
+          </select>
+        </div>
+        <div><label style="color:var(--text-muted);font-size:0.8rem;display:block;margin-bottom:0.3rem;">Date</label><input x-model="form.date" type="date"/></div>
+      </div>
+      <div><label style="color:var(--text-muted);font-size:0.8rem;display:block;margin-bottom:0.3rem;">Venue</label><input x-model="form.venue" placeholder="Grand Hall, Kayamkulam"/></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div>
+          <label style="color:var(--text-muted);font-size:0.8rem;display:block;margin-bottom:0.3rem;">Status</label>
+          <select x-model="form.status">
+            <option value="upcoming">Upcoming</option>
+            <option value="ongoing">Ongoing</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+        <div><label style="color:var(--text-muted);font-size:0.8rem;display:block;margin-bottom:0.3rem;">Guest Count</label><input x-model="form.guests" type="number" placeholder="150"/></div>
+      </div>
+      <div><label style="color:var(--text-muted);font-size:0.8rem;display:block;margin-bottom:0.3rem;">Notes</label><textarea x-model="form.notes" rows="3" placeholder="Special requirements..."></textarea></div>
+    </div>
+    <div style="display:flex;gap:1rem;margin-top:1.5rem;justify-content:flex-end;">
+      <button @click="showModal=false" class="btn-neon" style="padding:0.65rem 1.5rem;">Cancel</button>
+      <button @click="saveEvent()" class="btn-neon-solid" style="padding:0.65rem 1.5rem;" x-text="editMode ? 'Update Event' : 'Add Event'"></button>
+    </div>
+  </div>
+</div>
+
+<script>
+  function eventsAdmin() {
+    return {
+      user: JSON.parse(localStorage.getItem('user') || 'null'),
+      search: '', statusFilter: '', typeFilter: '',
+      showModal: false, editMode: false,
+      form: { clientName:'', phone:'', name:'', type:'', date:'', venue:'', status:'upcoming', guests:'', notes:'' },
+      nextId: 10,
+      events: [
+        { id:1, clientName:'Anisha Krishnan', phone:'+91 8075707566', name:'Krishnan Wedding', type:'Wedding', date:'2025-03-28', venue:'Grand Palace, Kayamkulam', status:'upcoming', guests:300, notes:'' },
+        { id:2, clientName:'Rajesh Menon', phone:'+91 9123456789', name:'TechCorp Annual Day', type:'Corporate', date:'2025-03-30', venue:'Hotel Meridian, Kochi', status:'upcoming', guests:200, notes:'' },
+        { id:3, clientName:'Priya Thomas', phone:'+91 9345678901', name:'Athira Birthday', type:'Birthday', date:'2025-04-02', venue:'Home, Palakkad', status:'upcoming', guests:80, notes:'' },
+        { id:4, clientName:'Suresh Kumar', phone:'+91 9234567890', name:'Cultural Program', type:'Stage', date:'2025-04-05', venue:'Town Hall, Kayamkulam', status:'upcoming', guests:500, notes:'' },
+        { id:5, clientName:'Deepa Nair', phone:'+91 9456789012', name:'Deepa-Arun Wedding', type:'Wedding', date:'2025-03-12', venue:'Sree Muruga Hall', status:'completed', guests:450, notes:'' },
+        { id:6, clientName:'James Mathew', phone:'+91 9567890123', name:'James Retirement Party', type:'Custom', date:'2025-03-10', venue:'Club House', status:'completed', guests:120, notes:'' },
+      ],
+      get filteredEvents() {
+        return this.events.filter(ev => {
+          const q = this.search.toLowerCase();
+          const matchSearch = !q || ev.clientName.toLowerCase().includes(q) || ev.name.toLowerCase().includes(q);
+          const matchStatus = !this.statusFilter || ev.status === this.statusFilter;
+          const matchType = !this.typeFilter || ev.type.toLowerCase() === this.typeFilter;
+          return matchSearch && matchStatus && matchType;
+        });
+      },
+      openModal() { this.editMode=false; this.form={ clientName:'',phone:'',name:'',type:'',date:'',venue:'',status:'upcoming',guests:'',notes:'' }; this.showModal=true; },
+      editEvent(ev) { this.editMode=true; this.form={...ev}; this.showModal=true; },
+      saveEvent() {
+        if (this.editMode) {
+          const idx = this.events.findIndex(e => e.id === this.form.id);
+          if (idx !== -1) this.events[idx] = {...this.form};
+        } else {
+          this.events.unshift({...this.form, id: this.nextId++ });
+        }
+        this.showModal=false;
+      },
+      deleteEvent(id) { if(confirm('Delete this event?')) this.events = this.events.filter(e => e.id !== id); },
+      logout() { localStorage.clear(); window.location.href='../login.html'; },
+      init() {
+        const token = localStorage.getItem('access_token');
+        if (!token) window.location.href='../login.html';
+        const u = localStorage.getItem('user');
+        if (u) this.user = JSON.parse(u);
+      }
+    };
+  }
+</script>
+</body>
+</html>

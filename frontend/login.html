@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login — Sree Saaj Events & Caterers</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+  <link href="static/css/neon.css" rel="stylesheet"/>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <style>
+    .scanline { position:fixed; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,transparent,rgba(255,0,64,0.3),transparent); animation:scanline 8s linear infinite; pointer-events:none; z-index:9999; opacity:0.4; }
+    .login-card { max-width:420px; width:100%; }
+    .form-input { background:rgba(255,255,255,0.05); border:1px solid rgba(255,0,64,0.25); color:#fff; border-radius:12px; padding:0.8rem 1rem; width:100%; font-size:0.9rem; outline:none; transition:all 0.3s; font-family:'Lato',sans-serif; }
+    .form-input:focus { border-color:var(--neon-red); box-shadow:0 0 0 3px rgba(255,0,64,0.12); background:rgba(255,0,64,0.04); }
+    .form-input::placeholder { color:var(--text-muted); }
+    .spin { animation:spin 1s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+  </style>
+</head>
+<body class="grid-bg" style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem 1rem;" x-data="loginApp()">
+<div class="scanline"></div>
+
+<!-- Background glow -->
+<div style="position:fixed;top:20%;left:30%;width:500px;height:500px;background:radial-gradient(circle,rgba(255,0,64,0.08),transparent 70%);border-radius:50%;pointer-events:none;"></div>
+
+<div class="login-card">
+  <!-- Logo -->
+  <div style="text-align:center;margin-bottom:2rem;">
+    <a href="index.html" style="display:inline-block;text-decoration:none;">
+      <img src="static/images/saaj-logo.png" alt="Sree Saaj Events & Caterers" class="saaj-logo-img"
+           style="height:90px;width:auto;margin:0 auto;display:block;"/>
+    </a>
+    <p style="color:var(--text-muted);font-size:0.8rem;letter-spacing:0.15em;text-transform:uppercase;margin-top:0.75rem;">Kayamkulam, Kerala</p>
+  </div>
+
+  <!-- Card -->
+  <div class="glass-strong" style="padding:2.5rem;">
+    <div style="text-align:center;margin-bottom:2rem;">
+      <h1 style="font-family:'Playfair Display',serif;font-size:1.6rem;color:#fff;margin-bottom:0.4rem;">Staff Portal</h1>
+      <p style="color:var(--text-muted);font-size:0.85rem;">Sign in to access your dashboard</p>
+    </div>
+
+    <!-- Error -->
+    <div x-show="error" style="background:rgba(255,0,64,0.1);border:1px solid rgba(255,0,64,0.3);color:#ff6680;border-radius:10px;padding:0.75rem 1rem;margin-bottom:1.25rem;font-size:0.85rem;display:flex;align-items:center;gap:0.5rem;">
+      ⚠️ <span x-text="error"></span>
+    </div>
+
+    <form @submit.prevent="login()">
+      <div style="margin-bottom:1.25rem;">
+        <label style="display:block;color:var(--text-muted);font-size:0.8rem;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;margin-bottom:0.5rem;">Email Address</label>
+        <input type="email" x-model="form.email" placeholder="admin@sreesaaj.com"
+               required autocomplete="email" class="form-input"/>
+      </div>
+
+      <div style="margin-bottom:1.25rem;">
+        <label style="display:block;color:var(--text-muted);font-size:0.8rem;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;margin-bottom:0.5rem;">Password</label>
+        <div style="position:relative;">
+          <input :type="showPass ? 'text' : 'password'" x-model="form.password"
+                 placeholder="••••••••" required autocomplete="current-password"
+                 class="form-input" style="padding-right:3rem;"/>
+          <button type="button" @click="showPass=!showPass"
+                  style="position:absolute;right:0.75rem;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.85rem;">
+            <span x-text="showPass ? '🙈' : '👁'"></span>
+          </button>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
+        <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;color:var(--text-muted);font-size:0.85rem;">
+          <input type="checkbox" x-model="form.remember" style="accent-color:var(--neon-red);"/> Remember me
+        </label>
+        <a href="#" style="color:var(--neon-red);font-size:0.82rem;text-decoration:none;">Forgot password?</a>
+      </div>
+
+      <button type="submit" :disabled="loading" class="btn-neon-solid"
+              style="width:100%;justify-content:center;padding:0.9rem;font-size:1rem;opacity:1;"
+              :style="loading ? 'opacity:0.7;cursor:not-allowed;' : ''">
+        <svg x-show="loading" class="spin" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+        </svg>
+        <span x-text="loading ? 'Signing in...' : 'Sign In'"></span>
+      </button>
+    </form>
+
+    <p style="text-align:center;color:var(--text-muted);font-size:0.78rem;margin-top:1.5rem;">
+      Only authorised staff can log in. Contact admin for access.
+    </p>
+  </div>
+
+  <!-- Demo credentials hint -->
+  <div class="glass" style="padding:1rem;margin-top:1rem;text-align:center;">
+    <p style="color:var(--text-muted);font-size:0.78rem;margin-bottom:0.3rem;">Demo credentials</p>
+    <p style="color:var(--neon-red);font-size:0.8rem;font-weight:600;">admin@sreesaaj.com / Admin@123</p>
+  </div>
+
+  <div style="text-align:center;margin-top:1.25rem;">
+    <a href="index.html" style="color:var(--text-muted);font-size:0.85rem;text-decoration:none;transition:color 0.2s;"
+       onmouseover="this.style.color='var(--neon-red)'" onmouseout="this.style.color='var(--text-muted)'">
+      ← Back to Website
+    </a>
+  </div>
+</div>
+
+<script>
+  function loginApp() {
+    return {
+      form: { email: '', password: '', remember: false },
+      loading: false,
+      showPass: false,
+      error: '',
+      async login() {
+        this.loading = true;
+        this.error = '';
+        try {
+          const res = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: this.form.email, password: this.form.password }),
+          });
+          const data = await res.json();
+          if (res.ok) {
+            localStorage.setItem('access_token', data.access_token);
+            localStorage.setItem('refresh_token', data.refresh_token);
+            localStorage.setItem('user', JSON.stringify(data.user));
+            window.location.href = data.user.role === 'admin'
+              ? 'admin/dashboard.html'
+              : 'staff/dashboard.html';
+          } else {
+            this.error = data.detail || 'Invalid email or password';
+          }
+        } catch (e) {
+          // Demo mode: allow admin login without server
+          if (this.form.email === 'admin@sreesaaj.com' && this.form.password === 'Admin@123') {
+            const demoUser = { full_name: 'Sree Saaj Admin', email: this.form.email, role: 'admin' };
+            localStorage.setItem('access_token', 'demo-token');
+            localStorage.setItem('user', JSON.stringify(demoUser));
+            window.location.href = 'admin/dashboard.html';
+          } else {
+            this.error = 'Unable to connect to server. Use demo credentials to continue.';
+          }
+        } finally {
+          this.loading = false;
+        }
+      }
+    };
+  }
+</script>
+</body>
+</html>

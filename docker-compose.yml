@@ -1,0 +1,363 @@
+version: '3.8'
+
+services:
+  # ── Databases ────────────────────────────────────────────────────────────
+  postgres-auth:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: auth_db
+      POSTGRES_USER: sreesaaj
+      POSTGRES_PASSWORD: SreeSaaj@2024
+    volumes:
+      - postgres_auth_data:/var/lib/postgresql/data
+    networks:
+      - sreesaaj-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sreesaaj -d auth_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres-event:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: event_db
+      POSTGRES_USER: sreesaaj
+      POSTGRES_PASSWORD: SreeSaaj@2024
+    volumes:
+      - postgres_event_data:/var/lib/postgresql/data
+    networks:
+      - sreesaaj-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sreesaaj -d event_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres-inventory:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: inventory_db
+      POSTGRES_USER: sreesaaj
+      POSTGRES_PASSWORD: SreeSaaj@2024
+    volumes:
+      - postgres_inventory_data:/var/lib/postgresql/data
+    networks:
+      - sreesaaj-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sreesaaj -d inventory_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres-billing:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: billing_db
+      POSTGRES_USER: sreesaaj
+      POSTGRES_PASSWORD: SreeSaaj@2024
+    volumes:
+      - postgres_billing_data:/var/lib/postgresql/data
+    networks:
+      - sreesaaj-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sreesaaj -d billing_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres-gallery:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: gallery_db
+      POSTGRES_USER: sreesaaj
+      POSTGRES_PASSWORD: SreeSaaj@2024
+    volumes:
+      - postgres_gallery_data:/var/lib/postgresql/data
+    networks:
+      - sreesaaj-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sreesaaj -d gallery_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres-menu:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: menu_db
+      POSTGRES_USER: sreesaaj
+      POSTGRES_PASSWORD: SreeSaaj@2024
+    volumes:
+      - postgres_menu_data:/var/lib/postgresql/data
+    networks:
+      - sreesaaj-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sreesaaj -d menu_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Microservices ────────────────────────────────────────────────────────
+  auth-service:
+    build:
+      context: ./services/auth-service
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8001"
+    environment:
+      DATABASE_URL: "postgresql+asyncpg://sreesaaj:SreeSaaj%402024@postgres-auth:5432/auth_db"
+      SECRET_KEY: sreesaaj-super-secret-key-2024-production
+      ALGORITHM: HS256
+      ACCESS_TOKEN_EXPIRE_MINUTES: 1440
+      REFRESH_TOKEN_EXPIRE_DAYS: 7
+      ALLOWED_ORIGINS: "http://localhost,http://localhost:80,http://localhost:3000"
+    depends_on:
+      postgres-auth:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - sreesaaj-network
+    restart: unless-stopped
+
+  event-service:
+    build:
+      context: ./services/event-service
+      dockerfile: Dockerfile
+    ports:
+      - "8002:8002"
+    environment:
+      DATABASE_URL: "postgresql+asyncpg://sreesaaj:SreeSaaj%402024@postgres-event:5432/event_db"
+      SECRET_KEY: sreesaaj-super-secret-key-2024-production
+      ALGORITHM: HS256
+      ALLOWED_ORIGINS: "http://localhost,http://localhost:80,http://localhost:3000"
+    depends_on:
+      postgres-event:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8002/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - sreesaaj-network
+    restart: unless-stopped
+
+  inventory-service:
+    build:
+      context: ./services/inventory-service
+      dockerfile: Dockerfile
+    ports:
+      - "8003:8003"
+    environment:
+      DATABASE_URL: "postgresql+asyncpg://sreesaaj:SreeSaaj%402024@postgres-inventory:5432/inventory_db"
+      SECRET_KEY: sreesaaj-super-secret-key-2024-production
+      ALGORITHM: HS256
+      ALLOWED_ORIGINS: "http://localhost,http://localhost:80,http://localhost:3000"
+    depends_on:
+      postgres-inventory:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8003/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - sreesaaj-network
+    restart: unless-stopped
+
+  billing-service:
+    build:
+      context: ./services/billing-service
+      dockerfile: Dockerfile
+    ports:
+      - "8004:8004"
+    environment:
+      DATABASE_URL: "postgresql+asyncpg://sreesaaj:SreeSaaj%402024@postgres-billing:5432/billing_db"
+      SECRET_KEY: sreesaaj-super-secret-key-2024-production
+      ALGORITHM: HS256
+      ALLOWED_ORIGINS: "http://localhost,http://localhost:80,http://localhost:3000"
+    depends_on:
+      postgres-billing:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8004/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - sreesaaj-network
+    restart: unless-stopped
+
+  gallery-service:
+    build:
+      context: ./services/gallery-service
+      dockerfile: Dockerfile
+    ports:
+      - "8005:8005"
+    environment:
+      DATABASE_URL: "postgresql+asyncpg://sreesaaj:SreeSaaj%402024@postgres-gallery:5432/gallery_db"
+      SECRET_KEY: sreesaaj-super-secret-key-2024-production
+      ALGORITHM: HS256
+      ALLOWED_ORIGINS: "http://localhost,http://localhost:80,http://localhost:3000"
+      UPLOAD_DIR: /app/uploads
+    depends_on:
+      postgres-gallery:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8005/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    volumes:
+      - gallery_uploads:/app/uploads
+    networks:
+      - sreesaaj-network
+    restart: unless-stopped
+
+  menu-service:
+    build:
+      context: ./services/menu-service
+      dockerfile: Dockerfile
+    ports:
+      - "8006:8006"
+    environment:
+      DATABASE_URL: "postgresql+asyncpg://sreesaaj:SreeSaaj%402024@postgres-menu:5432/menu_db"
+      SECRET_KEY: sreesaaj-super-secret-key-2024-production
+      ALGORITHM: HS256
+      ALLOWED_ORIGINS: "http://localhost,http://localhost:80,http://localhost:3000"
+    depends_on:
+      postgres-menu:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8006/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - sreesaaj-network
+    restart: unless-stopped
+
+  api-gateway:
+    build:
+      context: ./services/api-gateway
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      AUTH_SERVICE_URL: http://auth-service:8001
+      EVENT_SERVICE_URL: http://event-service:8002
+      INVENTORY_SERVICE_URL: http://inventory-service:8003
+      BILLING_SERVICE_URL: http://billing-service:8004
+      GALLERY_SERVICE_URL: http://gallery-service:8005
+      MENU_SERVICE_URL: http://menu-service:8006
+      SECRET_KEY: sreesaaj-super-secret-key-2024-production
+      ALGORITHM: HS256
+      ALLOWED_ORIGINS: "http://localhost,http://localhost:80,http://localhost:3000"
+    depends_on:
+      auth-service:
+        condition: service_healthy
+      event-service:
+        condition: service_healthy
+      inventory-service:
+        condition: service_healthy
+      billing-service:
+        condition: service_healthy
+      gallery-service:
+        condition: service_healthy
+      menu-service:
+        condition: service_healthy
+    networks:
+      - sreesaaj-network
+    restart: unless-stopped
+
+  # ── Frontend ────────────────────────────────────────────────────────────
+  frontend:
+    image: nginx:1.25-alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+      - ./infrastructure/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - api-gateway
+    networks:
+      - sreesaaj-network
+    restart: unless-stopped
+
+  # ── Monitoring ───────────────────────────────────────────────────────────
+  prometheus:
+    image: prom/prometheus:v2.48.0
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=15d'
+      - '--web.enable-lifecycle'
+    networks:
+      - sreesaaj-network
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:10.2.2
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: SreeSaaj@2024
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_SERVER_ROOT_URL: http://localhost:3000
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - prometheus
+    networks:
+      - sreesaaj-network
+    restart: unless-stopped
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    ports:
+      - "9100:9100"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    networks:
+      - sreesaaj-network
+    restart: unless-stopped
+
+volumes:
+  postgres_auth_data:
+  postgres_event_data:
+  postgres_inventory_data:
+  postgres_billing_data:
+  postgres_gallery_data:
+  postgres_menu_data:
+  gallery_uploads:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  sreesaaj-network:
+    driver: bridge

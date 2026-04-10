@@ -1,0 +1,517 @@
+/* ── Sree Saaj Neon Design System ─────────────────────────────────── */
+
+:root {
+  --bg-primary:    #0a0a0f;
+  --bg-secondary:  #0f0f1a;
+  --bg-card:       rgba(255, 255, 255, 0.04);
+  --neon-red:      #ff0040;
+  --neon-red-dim:  #cc0033;
+  --neon-red-glow: rgba(255, 0, 64, 0.4);
+  --neon-white:    #ffffff;
+  --text-primary:  #f0f0f0;
+  --text-muted:    #8888aa;
+  --border-glass:  rgba(255, 0, 64, 0.15);
+  --glass-bg:      rgba(255, 255, 255, 0.03);
+}
+
+/* ── Base ────────────────────────────────────────────────────────── */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: 'Lato', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5 {
+  font-family: 'Playfair Display', serif;
+}
+
+/* ── Neon Text ───────────────────────────────────────────────────── */
+.neon-text {
+  color: var(--neon-red);
+  text-shadow:
+    0 0 7px #fff,
+    0 0 10px #fff,
+    0 0 21px #fff,
+    0 0 42px var(--neon-red),
+    0 0 82px var(--neon-red),
+    0 0 92px var(--neon-red);
+}
+
+.neon-text-subtle {
+  color: var(--neon-red);
+  text-shadow:
+    0 0 5px var(--neon-red),
+    0 0 15px var(--neon-red-glow);
+}
+
+/* ── Glassmorphism Card ──────────────────────────────────────────── */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-glass);
+  border-radius: 16px;
+}
+
+.glass-strong {
+  background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 0, 64, 0.25);
+  border-radius: 20px;
+}
+
+/* ── Neon Border Glow ────────────────────────────────────────────── */
+.neon-border {
+  border: 1px solid var(--neon-red);
+  box-shadow: 0 0 8px var(--neon-red-glow), inset 0 0 8px rgba(255,0,64,0.05);
+}
+
+.neon-border-hover:hover {
+  border-color: var(--neon-red) !important;
+  box-shadow: 0 0 12px var(--neon-red-glow);
+  transition: all 0.3s;
+}
+
+/* ── Neon Buttons ────────────────────────────────────────────────── */
+.btn-neon {
+  background: transparent;
+  color: var(--neon-red);
+  border: 2px solid var(--neon-red);
+  padding: 12px 32px;
+  border-radius: 50px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 8px var(--neon-red-glow), inset 0 0 8px rgba(255,0,64,0.05);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-neon:hover {
+  background: var(--neon-red);
+  color: #fff;
+  box-shadow: 0 0 20px var(--neon-red), 0 0 40px var(--neon-red-glow), inset 0 0 20px rgba(255,255,255,0.1);
+  transform: translateY(-2px);
+}
+
+.btn-neon-solid {
+  background: var(--neon-red);
+  color: #fff;
+  border: 2px solid var(--neon-red);
+  padding: 12px 32px;
+  border-radius: 50px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 15px var(--neon-red-glow);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-neon-solid:hover {
+  box-shadow: 0 0 30px var(--neon-red), 0 0 60px var(--neon-red-glow);
+  transform: translateY(-2px);
+}
+
+/* ── Neon Divider ────────────────────────────────────────────────── */
+.neon-divider {
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--neon-red), transparent);
+  box-shadow: 0 0 8px var(--neon-red);
+  border: none;
+  margin: 24px 0;
+}
+
+/* ── Grid Glow Background ────────────────────────────────────────── */
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(255,0,64,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,0,64,0.04) 1px, transparent 1px);
+  background-size: 50px 50px;
+}
+
+/* ── Input Neon ──────────────────────────────────────────────────── */
+.input-neon {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,0,64,0.2);
+  border-radius: 12px;
+  color: var(--text-primary);
+  padding: 12px 16px;
+  width: 100%;
+  transition: all 0.3s;
+  outline: none;
+  font-family: 'Lato', sans-serif;
+}
+
+.input-neon:focus {
+  border-color: var(--neon-red);
+  box-shadow: 0 0 12px var(--neon-red-glow);
+  background: rgba(255,0,64,0.05);
+}
+
+.input-neon::placeholder { color: var(--text-muted); }
+
+/* ── Animations ──────────────────────────────────────────────────── */
+@keyframes neonPulse {
+  0%, 100% { box-shadow: 0 0 8px var(--neon-red-glow); }
+  50%       { box-shadow: 0 0 24px var(--neon-red), 0 0 48px var(--neon-red-glow); }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes floatUp {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-12px); }
+}
+
+@keyframes scanline {
+  0%   { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+@keyframes glitch {
+  0%, 100% { transform: translate(0); }
+  20%       { transform: translate(-2px, 2px); }
+  40%       { transform: translate(2px, -2px); }
+  60%       { transform: translate(-1px, 1px); }
+  80%       { transform: translate(1px, -1px); }
+}
+
+.animate-fade-up         { animation: fadeInUp 0.8s ease forwards; }
+.animate-fade-up-d1      { animation: fadeInUp 0.8s 0.2s ease both; }
+.animate-fade-up-d2      { animation: fadeInUp 0.8s 0.4s ease both; }
+.animate-float           { animation: floatUp 4s ease-in-out infinite; }
+.animate-neon-pulse      { animation: neonPulse 2s ease-in-out infinite; }
+
+/* ── Navbar ──────────────────────────────────────────────────────── */
+.navbar {
+  background: rgba(10, 10, 15, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border-glass);
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 9999;
+  padding: 14px 24px;
+}
+
+.navbar-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--neon-red);
+  text-shadow: 0 0 8px var(--neon-red-glow);
+}
+
+.navbar-links {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.navbar-links a {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  transition: color 0.3s;
+  position: relative;
+  padding-bottom: 2px;
+}
+
+.navbar-links a::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 0; height: 1px;
+  background: var(--neon-red);
+  transition: width 0.3s;
+}
+
+.navbar-links a:hover,
+.navbar-links a.active {
+  color: var(--neon-red);
+  text-shadow: 0 0 8px var(--neon-red-glow);
+}
+
+.navbar-links a:hover::after,
+.navbar-links a.active::after { width: 100%; }
+
+.nav-link {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  padding: 6px 0;
+  position: relative;
+  transition: color 0.3s;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 0; height: 1px;
+  background: var(--neon-red);
+  box-shadow: 0 0 6px var(--neon-red);
+  transition: width 0.3s;
+}
+
+.nav-link:hover, .nav-link.active {
+  color: var(--neon-red);
+  text-shadow: 0 0 8px var(--neon-red-glow);
+}
+
+.nav-link:hover::after, .nav-link.active::after { width: 100%; }
+
+/* ── Logo ────────────────────────────────────────────────────────── */
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
+
+/* Compact "SAAJ" banner badge used in navbars & sidebars */
+.logo-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(200,0,30,0.2);
+  border: 2px solid #ff0040;
+  border-radius: 6px;
+  box-shadow: 0 0 12px rgba(255,0,64,0.5), inset 0 0 8px rgba(255,0,64,0.1);
+  font-family: 'Arial Black', 'Impact', sans-serif;
+  font-weight: 900;
+  font-size: 0.85rem;
+  color: #ffffff;
+  text-shadow: 0 0 8px #fff, 0 0 16px rgba(255,255,255,0.5);
+  letter-spacing: 0.02em;
+  padding: 4px 8px;
+  min-width: 44px;
+  min-height: 30px;
+  position: relative;
+}
+/* Small stripe accents on sides of badge */
+.logo-badge::before,
+.logo-badge::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 6px;
+  height: 14px;
+  background: #ff0040;
+  box-shadow: 0 0 6px rgba(255,0,64,0.8);
+  transform: translateY(-50%);
+  border-radius: 2px;
+}
+.logo-badge::before { left: -9px; }
+.logo-badge::after  { right: -9px; }
+
+/* Full SVG logo — used in hero & login */
+.saaj-logo-img {
+  display: block;
+  filter: drop-shadow(0 0 10px rgba(255,0,64,0.4));
+}
+.saaj-logo-img:hover {
+  filter: drop-shadow(0 0 20px rgba(255,0,64,0.7));
+  transition: filter 0.3s;
+}
+
+.logo-text-main {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+
+.logo-text-sub {
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  color: var(--neon-red);
+  text-transform: uppercase;
+  text-shadow: 0 0 8px var(--neon-red-glow);
+}
+
+/* ── Hero ────────────────────────────────────────────────────────── */
+.hero-section {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  padding-top: 80px;
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 20% 50%, rgba(255,0,64,0.12) 0%, transparent 60%),
+              radial-gradient(ellipse at 80% 20%, rgba(255,0,64,0.06) 0%, transparent 50%),
+              var(--bg-primary);
+}
+
+/* ── Stats ───────────────────────────────────────────────────────── */
+.stat-card {
+  text-align: center;
+  padding: 20px;
+  border-radius: 16px;
+  background: var(--glass-bg);
+  border: 1px solid var(--border-glass);
+  backdrop-filter: blur(12px);
+}
+
+/* ── Service Cards ───────────────────────────────────────────────── */
+.service-card {
+  background: var(--glass-bg);
+  border: 1px solid var(--border-glass);
+  border-radius: 20px;
+  padding: 32px;
+  backdrop-filter: blur(12px);
+  transition: all 0.4s ease;
+  cursor: pointer;
+}
+
+.service-card:hover {
+  border-color: var(--neon-red);
+  box-shadow: 0 0 20px var(--neon-red-glow), 0 20px 40px rgba(0,0,0,0.3);
+  transform: translateY(-8px);
+  background: rgba(255,0,64,0.04);
+}
+
+/* ── Gallery ─────────────────────────────────────────────────────── */
+.gallery-item { position: relative; overflow: hidden; border-radius: 16px; cursor: pointer; }
+.gallery-overlay {
+  position: absolute; inset: 0;
+  background: rgba(255,0,64,0.7);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.gallery-item:hover .gallery-overlay { opacity: 1; }
+
+/* ── Scrollbar ───────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-primary); }
+::-webkit-scrollbar-thumb { background: var(--neon-red-dim); border-radius: 3px; }
+
+/* ── WhatsApp Float ──────────────────────────────────────────────── */
+.whatsapp-float {
+  position: fixed;
+  bottom: 28px; right: 28px;
+  width: 60px; height: 60px;
+  background: #25D366;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 20px rgba(37,211,102,0.4);
+  z-index: 9998;
+  transition: all 0.3s;
+  cursor: pointer;
+}
+.whatsapp-float:hover { transform: scale(1.15); box-shadow: 0 6px 30px rgba(37,211,102,0.6); }
+
+/* ── Admin Sidebar ───────────────────────────────────────────────── */
+.admin-sidebar {
+  width: 260px;
+  background: rgba(10,10,15,0.95);
+  border-right: 1px solid var(--border-glass);
+  position: fixed;
+  inset-y: 0; left: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 16px;
+  border-radius: 12px;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: all 0.2s;
+  margin: 2px 0;
+}
+
+.sidebar-nav-link:hover, .sidebar-nav-link.active {
+  background: rgba(255,0,64,0.1);
+  color: var(--neon-red);
+  border-left: 2px solid var(--neon-red);
+  box-shadow: inset 0 0 12px rgba(255,0,64,0.05);
+}
+
+/* ── Table ───────────────────────────────────────────────────────── */
+.neon-table { width: 100%; border-collapse: collapse; }
+.neon-table th {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--neon-red);
+  border-bottom: 1px solid var(--border-glass);
+}
+.neon-table td {
+  padding: 14px 16px;
+  font-size: 0.875rem;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  color: var(--text-primary);
+}
+.neon-table tr:hover td { background: rgba(255,0,64,0.03); }
+
+/* ── Badges ──────────────────────────────────────────────────────── */
+.badge-new        { background: rgba(255,0,64,0.15); color: #ff4d75; border: 1px solid rgba(255,0,64,0.3); }
+.badge-confirmed  { background: rgba(0,200,100,0.15); color: #00e676; border: 1px solid rgba(0,200,100,0.3); }
+.badge-pending    { background: rgba(255,165,0,0.15); color: #ffa726; border: 1px solid rgba(255,165,0,0.3); }
+.badge-completed  { background: rgba(100,100,150,0.15); color: #9e9eb8; border: 1px solid rgba(100,100,150,0.3); }
+.badge-cancelled  { background: rgba(255,0,0,0.1); color: #ff5555; border: 1px solid rgba(255,0,0,0.2); }
+.badge { padding: 3px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.05em; }
+
+/* ── Tooltip ─────────────────────────────────────────────────────── */
+[data-tip] { position: relative; }
+[data-tip]:hover::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: 100%; left: 50%;
+  transform: translateX(-50%);
+  background: rgba(10,10,15,0.95);
+  border: 1px solid var(--border-glass);
+  color: var(--text-primary);
+  font-size: 0.75rem;
+  padding: 5px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+  margin-bottom: 6px;
+}

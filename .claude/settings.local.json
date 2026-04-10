@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/adwai/.claude/projects/c--SreeSaaj/a650c1d8-c934-4633-a1d2-a4895ac5ef73/subagents/**)",
+      "Bash(c:/SreeSaaj/infrastructure/kubernetes/deployments/inventory-service-deployment.yaml:*)",
+      "Bash(__NEW_LINE_32adcaa0dd8dacbe__ cat:*)",
+      "Bash(c:/SreeSaaj/infrastructure/kubernetes/deployments/billing-service-deployment.yaml:*)",
+      "Bash(c:/SreeSaaj/infrastructure/kubernetes/deployments/gallery-service-deployment.yaml:*)",
+      "Bash(c:/SreeSaaj/infrastructure/kubernetes/deployments/menu-service-deployment.yaml:*)",
+      "Bash(docker run:*)",
+      "Bash(docker restart:*)",
+      "Bash(pip install:*)",
+      "Bash(pip show:*)",
+      "Bash(python -c \"import fastapi, sqlalchemy, jose, passlib; print\\('All packages OK'\\)\")",
+      "Bash(python -m pip install fastapi uvicorn sqlalchemy \"python-jose[cryptography]\" \"passlib[bcrypt]\" python-multipart \"pydantic[email]\")",
+      "Bash(python -c \"import main; print\\('Import OK'\\)\")",
+      "Bash(python -m uvicorn main:app --host 0.0.0.0 --port 8001)",
+      "Bash(curl -s http://localhost:8001/health)"
+    ]
+  }
+}

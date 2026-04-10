@@ -1,0 +1,285 @@
+---
+# =============================================================================
+# Playbook: deploy-app.yml
+# Purpose : Deploy Sree Saaj platform to Azure Kubernetes Service (AKS)
+#
+# Usage:
+#   ansible-playbook playbooks/deploy-app.yml \
+#     -e "image_tag=v1.0.0"
+#
+# Required vars (can also be set in inventory/hosts.yml):
+#   image_tag            — Docker image tag to deploy (default: latest)
+#   azure_resource_group — Azure resource group containing the AKS cluster
+#   azure_aks_cluster    — AKS cluster name
+#   acr_login_server     — ACR login server (e.g. myacr.azurecr.io)
+#
+# Prerequisites on control machine:
+#   pip install -r pip-requirements.txt
+#   ansible-galaxy collection install -r requirements.yml
+#   az login (or set ARM_CLIENT_ID / ARM_CLIENT_SECRET env vars for CI)
+# =============================================================================
+
+
+# ── PLAY 1: Pre-flight checks ─────────────────────────────────────────────────
+- name: Pre-flight checks
+  hosts: aks_deployer
+  gather_facts: false
+
+  vars:
+    image_tag: "latest"
+
+  tasks:
+    - name: Verify Azure CLI is installed
+      command: az version --output none
+      changed_when: false
+      register: az_check
+      failed_when: az_check.rc != 0
+
+    - name: Verify kubectl is installed
+      command: kubectl version --client --output yaml
+      changed_when: false
+      register: kubectl_check
+      failed_when: kubectl_check.rc != 0
+
+    - name: Verify az CLI is authenticated
+      command: az account show --output none
+      changed_when: false
+      register: az_auth
+      failed_when: az_auth.rc != 0
+      # If this fails, run: az login
+      # In CI set: ARM_CLIENT_ID, ARM_CLIENT_SECRET, ARM_TENANT_ID, ARM_SUBSCRIPTION_ID
+
+    - name: Display current Azure subscription
+      command: az account show --query "{name:name, id:id}" --output json
+      changed_when: false
+      register: az_account
+
+    - name: Show subscription details
+      debug:
+        msg: "Deploying into Azure subscription: {{ az_account.stdout | from_json }}"
+
+    - name: Verify manifest directory exists
+      stat:
+        path: "{{ manifest_base_dir }}"
+      register: manifest_dir_stat
+      failed_when: not manifest_dir_stat.stat.exists
+
+
+# ── PLAY 2: Configure AKS access ─────────────────────────────────────────────
+- name: Configure AKS access
+  hosts: aks_deployer
+  gather_facts: false
+
+  vars:
+    image_tag: "latest"
+
+  tasks:
+    - name: Fetch AKS credentials (writes to ~/.kube/config)
+      command: >
+        az aks get-credentials
+        --resource-group {{ azure_resource_group }}
+        --name {{ azure_aks_cluster }}
+        --overwrite-existing
+      changed_when: true
+      register: aks_creds
+
+    - name: Set kubectl context to AKS cluster
+      command: kubectl config use-context {{ k8s_context }}
+      changed_when: false
+
+    - name: Verify kubectl can reach AKS API server
+      command: kubectl cluster-info
+      changed_when: false
+      register: cluster_info
+
+    - name: Display cluster info
+      debug:
+        msg: "{{ cluster_info.stdout_lines }}"
+
+    - name: Check current nodes in cluster
+      command: kubectl get nodes -o wide
+      changed_when: false
+      register: node_list
+
+    - name: Display nodes
+      debug:
+        msg: "{{ node_list.stdout_lines }}"
+
+
+# ── PLAY 3: Deploy manifests ──────────────────────────────────────────────────
+- name: Deploy Kubernetes manifests to AKS
+  hosts: aks_deployer
+  gather_facts: false
+
+  vars:
+    image_tag: "latest"
+
+  tasks:
+    # ── Namespace ──────────────────────────────────────────────────────────────
+    - name: Apply namespace
+      kubernetes.core.k8s:
+        state: present
+        src: "{{ manifest_base_dir }}/namespace.yaml"
+        context: "{{ k8s_context }}"
+      tags: [namespace]
+
+    # ── ConfigMap ─────────────────────────────────────────────────────────────
+    - name: Apply ConfigMap
+      kubernetes.core.k8s:
+        state: present
+        src: "{{ manifest_base_dir }}/configmap.yaml"
+        context: "{{ k8s_context }}"
+      tags: [config]
+
+    # ── Persistent Storage ───────────────────────────────────────────────────
+    - name: Apply PersistentVolumeClaims
+      kubernetes.core.k8s:
+        state: present
+        src: "{{ manifest_base_dir }}/storage.yaml"
+        context: "{{ k8s_context }}"
+      tags: [storage]
+
+    # ── Secrets ───────────────────────────────────────────────────────────────
+    # NOTE: In production, use Azure Key Vault + Secrets Store CSI Driver instead
+    # of applying secrets.yaml directly. The values in secrets.yaml should be
+    # encrypted with Ansible Vault:  ansible-vault encrypt secrets.yaml
+    - name: Apply Secrets
+      kubernetes.core.k8s:
+        state: present
+        src: "{{ manifest_base_dir }}/secrets.yaml"
+        context: "{{ k8s_context }}"
+      tags: [secrets]
+      no_log: true  # Never print secret values in output
+
+    # ── Update deployment manifests to use ACR images ──────────────────────────
+    # The source manifests reference ghcr.io — rewrite them to ACR before applying
+    - name: Create temporary staging directory for processed manifests
+      tempfile:
+        state: directory
+        suffix: "-k8s-deploy"
+      register: staging_dir
+      tags: [deployments]
+
+    - name: Copy deployment manifests to staging directory
+      copy:
+        src: "{{ manifest_base_dir }}/deployments/"
+        dest: "{{ staging_dir.path }}/deployments/"
+      tags: [deployments]
+
+    - name: Rewrite image references to ACR in each deployment manifest
+      replace:
+        path: "{{ staging_dir.path }}/deployments/{{ item.name }}-deployment.yaml"
+        regexp: 'image:\s+\S+/sreesaaj/{{ item.name }}:\S+'
+        replace: "image: {{ item.image }}:{{ image_tag }}"
+      loop: "{{ k8s_deployments }}"
+      tags: [deployments]
+
+    - name: Apply all deployment manifests
+      kubernetes.core.k8s:
+        state: present
+        src: "{{ staging_dir.path }}/deployments/{{ item.name }}-deployment.yaml"
+        context: "{{ k8s_context }}"
+      loop: "{{ k8s_deployments }}"
+      loop_control:
+        label: "{{ item.name }}"
+      tags: [deployments]
+
+    - name: Clean up staging directory
+      file:
+        path: "{{ staging_dir.path }}"
+        state: absent
+      tags: [deployments]
+
+    # ── Services ──────────────────────────────────────────────────────────────
+    - name: Apply Services
+      kubernetes.core.k8s:
+        state: present
+        src: "{{ manifest_base_dir }}/services/all-services.yaml"
+        context: "{{ k8s_context }}"
+      tags: [services]
+
+    # ── Ingress ───────────────────────────────────────────────────────────────
+    - name: Apply Ingress
+      kubernetes.core.k8s:
+        state: present
+        src: "{{ manifest_base_dir }}/ingress.yaml"
+        context: "{{ k8s_context }}"
+      tags: [ingress]
+
+    # ── Horizontal Pod Autoscaler ─────────────────────────────────────────────
+    - name: Apply HPA
+      kubernetes.core.k8s:
+        state: present
+        src: "{{ manifest_base_dir }}/hpa.yaml"
+        context: "{{ k8s_context }}"
+      tags: [hpa]
+
+
+# ── PLAY 4: Wait for rollouts and verify ──────────────────────────────────────
+- name: Verify deployment health
+  hosts: aks_deployer
+  gather_facts: false
+
+  vars:
+    image_tag: "latest"
+    rollout_timeout: "300s"
+
+  tasks:
+    - name: Wait for each deployment to finish rolling out
+      command: >
+        kubectl rollout status deployment/{{ item.name }}
+        --namespace {{ k8s_namespace }}
+        --timeout {{ rollout_timeout }}
+        --context {{ k8s_context }}
+      loop: "{{ k8s_deployments }}"
+      loop_control:
+        label: "{{ item.name }}"
+      changed_when: false
+      register: rollout_results
+
+    - name: Check all pods are Running
+      command: >
+        kubectl get pods
+        --namespace {{ k8s_namespace }}
+        --context {{ k8s_context }}
+        -o wide
+      changed_when: false
+      register: pod_status
+
+    - name: Display pod status
+      debug:
+        msg: "{{ pod_status.stdout_lines }}"
+
+    - name: Get services and external IPs
+      command: >
+        kubectl get services
+        --namespace {{ k8s_namespace }}
+        --context {{ k8s_context }}
+      changed_when: false
+      register: svc_status
+
+    - name: Display services
+      debug:
+        msg: "{{ svc_status.stdout_lines }}"
+
+    - name: Get ingress address
+      command: >
+        kubectl get ingress
+        --namespace {{ k8s_namespace }}
+        --context {{ k8s_context }}
+      changed_when: false
+      register: ingress_status
+
+    - name: Display ingress
+      debug:
+        msg: "{{ ingress_status.stdout_lines }}"
+
+    - name: Confirm all rollouts succeeded
+      assert:
+        that:
+          - item.rc == 0
+        fail_msg: "Rollout failed for deployment: {{ item.item.name }}"
+        success_msg: "{{ item.item.name }} rolled out successfully"
+      loop: "{{ rollout_results.results }}"
+      loop_control:
+        label: "{{ item.item.name }}"

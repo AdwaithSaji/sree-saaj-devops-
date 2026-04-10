@@ -1,0 +1,160 @@
+---
+# api-gateway — entry point for all /api traffic from the Ingress
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-gateway
+  namespace: sreesaaj
+  labels:
+    app: api-gateway
+    app.kubernetes.io/name: api-gateway
+    app.kubernetes.io/component: gateway
+spec:
+  type: ClusterIP
+  selector:
+    app: api-gateway
+  ports:
+  - name: http
+    port: 8000
+    targetPort: 8000
+    protocol: TCP
+---
+# auth-service
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-service
+  namespace: sreesaaj
+  labels:
+    app: auth-service
+    app.kubernetes.io/name: auth-service
+    app.kubernetes.io/component: backend
+spec:
+  type: ClusterIP
+  selector:
+    app: auth-service
+  ports:
+  - name: http
+    port: 8001
+    targetPort: 8001
+    protocol: TCP
+---
+# event-service
+apiVersion: v1
+kind: Service
+metadata:
+  name: event-service
+  namespace: sreesaaj
+  labels:
+    app: event-service
+    app.kubernetes.io/name: event-service
+    app.kubernetes.io/component: backend
+spec:
+  type: ClusterIP
+  selector:
+    app: event-service
+  ports:
+  - name: http
+    port: 8002
+    targetPort: 8002
+    protocol: TCP
+---
+# inventory-service
+apiVersion: v1
+kind: Service
+metadata:
+  name: inventory-service
+  namespace: sreesaaj
+  labels:
+    app: inventory-service
+    app.kubernetes.io/name: inventory-service
+    app.kubernetes.io/component: backend
+spec:
+  type: ClusterIP
+  selector:
+    app: inventory-service
+  ports:
+  - name: http
+    port: 8003
+    targetPort: 8003
+    protocol: TCP
+---
+# billing-service
+apiVersion: v1
+kind: Service
+metadata:
+  name: billing-service
+  namespace: sreesaaj
+  labels:
+    app: billing-service
+    app.kubernetes.io/name: billing-service
+    app.kubernetes.io/component: backend
+spec:
+  type: ClusterIP
+  selector:
+    app: billing-service
+  ports:
+  - name: http
+    port: 8004
+    targetPort: 8004
+    protocol: TCP
+---
+# gallery-service
+apiVersion: v1
+kind: Service
+metadata:
+  name: gallery-service
+  namespace: sreesaaj
+  labels:
+    app: gallery-service
+    app.kubernetes.io/name: gallery-service
+    app.kubernetes.io/component: backend
+spec:
+  type: ClusterIP
+  selector:
+    app: gallery-service
+  ports:
+  - name: http
+    port: 8005
+    targetPort: 8005
+    protocol: TCP
+---
+# menu-service
+apiVersion: v1
+kind: Service
+metadata:
+  name: menu-service
+  namespace: sreesaaj
+  labels:
+    app: menu-service
+    app.kubernetes.io/name: menu-service
+    app.kubernetes.io/component: backend
+spec:
+  type: ClusterIP
+  selector:
+    app: menu-service
+  ports:
+  - name: http
+    port: 8006
+    targetPort: 8006
+    protocol: TCP
+---
+# frontend — serves the static HTML/CSS/JS site
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  namespace: sreesaaj
+  labels:
+    app: frontend
+    app.kubernetes.io/name: frontend
+    app.kubernetes.io/component: frontend
+spec:
+  type: ClusterIP
+  selector:
+    app: frontend
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+    protocol: TCP

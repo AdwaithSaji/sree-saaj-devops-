@@ -1,0 +1,99 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gallery-service
+  namespace: sreesaaj
+  labels:
+    app: gallery-service
+    app.kubernetes.io/name: gallery-service
+    app.kubernetes.io/component: backend
+    version: v1
+spec:
+  replicas: 2
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: gallery-service
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: gallery-service
+        app.kubernetes.io/name: gallery-service
+        version: v1
+    spec:
+      terminationGracePeriodSeconds: 30
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app: gallery-service
+              topologyKey: kubernetes.io/hostname
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        fsGroup: 1001
+      containers:
+      - name: gallery-service
+        image: sreesaajproductionacr.azurecr.io/sreesaaj/gallery-service:latest
+        ports:
+        - name: http
+          containerPort: 8005
+          protocol: TCP
+        envFrom:
+        - configMapRef:
+            name: sreesaaj-config
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: sreesaaj-secrets
+              key: database-url-gallery
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: sreesaaj-secrets
+              key: jwt-secret
+        - name: UPLOAD_DIR
+          value: /app/uploads
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: [ALL]
+        volumeMounts:
+        - name: gallery-uploads
+          mountPath: /app/uploads
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8005
+          initialDelaySeconds: 30
+          periodSeconds: 15
+          failureThreshold: 3
+          timeoutSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8005
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          failureThreshold: 3
+          timeoutSeconds: 3
+      volumes:
+      - name: gallery-uploads
+        persistentVolumeClaim:
+          claimName: gallery-uploads-pvc

@@ -1,0 +1,21 @@
+# Never copy these into the image
+.env
+.env.*
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.git/
+.gitignore
+.dockerignore
+Dockerfile
+*.md
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+tests/
