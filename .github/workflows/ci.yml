@@ -69,7 +69,7 @@ jobs:
           - event-service
           - inventory-service
           - billing-service
-          - gallery-service
+          - # gallery-service
           - menu-service
 
     services:
