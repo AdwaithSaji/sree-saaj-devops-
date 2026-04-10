@@ -42,7 +42,8 @@ spec:
         fsGroup: 1001
       containers:
       - name: event-service
-        image: sreesaajproductionacr.azurecr.io/sreesaaj/event-service:latest
+        image: sreesaaj/event-service:latest
+        imagePullPolicy: Never
         ports:
         - name: http
           containerPort: 8002

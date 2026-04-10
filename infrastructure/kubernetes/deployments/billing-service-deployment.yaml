@@ -42,7 +42,8 @@ spec:
         fsGroup: 1001
       containers:
       - name: billing-service
-        image: sreesaajproductionacr.azurecr.io/sreesaaj/billing-service:latest
+        image: sreesaaj/billing-service:latest
+        imagePullPolicy: Never
         ports:
         - name: http
           containerPort: 8004

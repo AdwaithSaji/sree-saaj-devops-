@@ -42,7 +42,8 @@ spec:
         fsGroup: 1001
       containers:
       - name: inventory-service
-        image: sreesaajproductionacr.azurecr.io/sreesaaj/inventory-service:latest
+        image: sreesaaj/inventory-service:latest
+        imagePullPolicy: Never
         ports:
         - name: http
           containerPort: 8003

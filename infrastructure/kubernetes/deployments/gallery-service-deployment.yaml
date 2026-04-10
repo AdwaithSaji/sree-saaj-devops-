@@ -42,7 +42,8 @@ spec:
         fsGroup: 1001
       containers:
       - name: gallery-service
-        image: sreesaajproductionacr.azurecr.io/sreesaaj/gallery-service:latest
+        image: sreesaaj/gallery-service:latest
+        imagePullPolicy: Never
         ports:
         - name: http
           containerPort: 8005

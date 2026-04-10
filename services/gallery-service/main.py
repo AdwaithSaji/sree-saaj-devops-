@@ -31,7 +31,7 @@ app.add_middleware(
 Instrumentator().instrument(app).expose(app)
 bearer_scheme = HTTPBearer(auto_error=False)
 
-UPLOAD_DIR = Path(settings.UPLOAD_DIR)
+UPLOAD_DIR = Path("uploads")
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 

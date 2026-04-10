@@ -42,7 +42,8 @@ spec:
         fsGroup: 1001
       containers:
       - name: auth-service
-        image: sreesaajproductionacr.azurecr.io/sreesaaj/auth-service:latest
+        image: sreesaaj/auth-service:latest
+        imagePullPolicy: Never
         ports:
         - name: http
           containerPort: 8001

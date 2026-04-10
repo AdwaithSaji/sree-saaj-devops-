@@ -42,7 +42,8 @@ spec:
         fsGroup: 1001
       containers:
       - name: menu-service
-        image: sreesaajproductionacr.azurecr.io/sreesaaj/menu-service:latest
+        image: sreesaaj/menu-service:latest
+        imagePullPolicy: Never
         ports:
         - name: http
           containerPort: 8006

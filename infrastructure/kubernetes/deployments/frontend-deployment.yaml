@@ -43,7 +43,8 @@ spec:
         fsGroup: 1001
       containers:
       - name: frontend
-        image: sreesaajproductionacr.azurecr.io/sreesaaj/frontend:latest
+        image: sreesaaj/frontend:latest
+        imagePullPolicy: Never
         ports:
         - name: http
           containerPort: 80

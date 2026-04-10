@@ -45,7 +45,8 @@ spec:
         fsGroup: 1001
       containers:
       - name: api-gateway
-        image: sreesaajproductionacr.azurecr.io/sreesaaj/api-gateway:latest
+        image: sreesaaj/api-gateway:latest
+        imagePullPolicy: Never
         ports:
         - name: http
           containerPort: 8000
