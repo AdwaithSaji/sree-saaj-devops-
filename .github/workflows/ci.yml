@@ -117,8 +117,7 @@ jobs:
             context: services/inventory-service
           - name: billing-service
             context: services/billing-service
-          - name: gallery-service   # ✅ STILL BUILT
-            context: services/gallery-service
+          
           - name: menu-service
             context: services/menu-service
           - name: frontend
