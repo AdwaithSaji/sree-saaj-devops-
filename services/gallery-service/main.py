@@ -11,7 +11,6 @@ from prometheus_fastapi_instrumentator import Instrumentator
 import uuid
 import os
 import aiofiles
-import shutil
 from pathlib import Path
 
 from database import get_db, init_db
@@ -31,8 +30,14 @@ app.add_middleware(
 Instrumentator().instrument(app).expose(app)
 bearer_scheme = HTTPBearer(auto_error=False)
 
+# ✅ FIXED: no filesystem operation during import
 UPLOAD_DIR = Path("uploads")
-UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+
+def init_storage():
+    try:
+        UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+    except Exception:
+        pass
 
 
 def require_auth(credentials: Optional[HTTPAuthorizationCredentials] = Depends(bearer_scheme)) -> Optional[dict]:
@@ -57,8 +62,10 @@ def require_admin(credentials: Optional[HTTPAuthorizationCredentials] = Depends(
         raise HTTPException(status_code=401, detail="Invalid token")
 
 
+# ✅ FIXED: safe initialization during startup
 @app.on_event("startup")
 async def startup():
+    init_storage()
     await init_db()
 
 
@@ -69,7 +76,6 @@ async def health():
 
 @app.get("/api/gallery/")
 async def list_images(category: Optional[GalleryCategory] = None, db: AsyncSession = Depends(get_db)):
-    """Public endpoint."""
     query = select(GalleryImage)
     if category:
         query = query.where(GalleryImage.category == category)
@@ -80,7 +86,6 @@ async def list_images(category: Optional[GalleryCategory] = None, db: AsyncSessi
 
 @app.get("/api/gallery/categories")
 async def list_categories(db: AsyncSession = Depends(get_db)):
-    """Public endpoint — returns categories with image counts."""
     result = await db.execute(
         select(GalleryImage.category, func.count(GalleryImage.id).label("count"))
         .group_by(GalleryImage.category)
@@ -130,10 +135,11 @@ async def delete_image(image_id: str, db: AsyncSession = Depends(get_db), _: dic
     image = result.scalar_one_or_none()
     if not image:
         raise HTTPException(status_code=404, detail="Image not found")
-    # Remove file
+
     filepath = UPLOAD_DIR / image.image_url.split("/")[-1]
     if filepath.exists():
         filepath.unlink()
+
     await db.delete(image)
     await db.commit()
     return {"message": "Image deleted"}
