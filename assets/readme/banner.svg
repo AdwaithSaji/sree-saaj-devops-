@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 340" width="1280" height="340" role="img" aria-labelledby="t d">
+  <title id="t">Sree Saaj platform DevOps</title>
+  <desc id="d">Delivery path of the Sree Saaj platform: source in GitHub, GitHub Actions CI, Azure Container Registry, Azure Kubernetes Service, with Terraform provisioning the Azure resources.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#15181b"/><stop offset="1" stop-color="#0a0c0d"/></linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="#ffffff" stroke-opacity="0.035"/></pattern>
+  </defs>
+  <rect width="1280" height="340" rx="16" fill="url(#bg)"/>
+  <rect width="1280" height="340" rx="16" fill="url(#grid)"/>
+  <rect x="0.5" y="0.5" width="1279" height="339" rx="15.5" fill="none" stroke="#ffffff" stroke-opacity="0.08"/>
+  <g font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif">
+    <text x="72" y="96" font-size="15" letter-spacing="4" fill="#a3e635" font-weight="600">SREE SAAJ EVENTS &amp; CATERERS</text>
+    <text x="72" y="166" font-size="60" letter-spacing="1" fill="#f3f4f6" font-weight="700">Platform DevOps</text>
+    <text x="74" y="208" font-size="23" fill="#98a1ac">Microservices, containers and infrastructure as code.</text>
+    <g font-size="14" fill="#cdd2d8">
+      <rect x="72" y="244" width="86" height="30" rx="15" fill="#ffffff" fill-opacity="0.06" stroke="#ffffff" stroke-opacity="0.12"/><text x="115" y="264" text-anchor="middle">Docker</text>
+      <rect x="168" y="244" width="116" height="30" rx="15" fill="#ffffff" fill-opacity="0.06" stroke="#ffffff" stroke-opacity="0.12"/><text x="226" y="264" text-anchor="middle">Kubernetes</text>
+      <rect x="294" y="244" width="104" height="30" rx="15" fill="#ffffff" fill-opacity="0.06" stroke="#ffffff" stroke-opacity="0.12"/><text x="346" y="264" text-anchor="middle">Terraform</text>
+      <rect x="408" y="244" width="86" height="30" rx="15" fill="#ffffff" fill-opacity="0.06" stroke="#ffffff" stroke-opacity="0.12"/><text x="451" y="264" text-anchor="middle">Azure</text>
+    </g>
+  </g>
+  <g transform="translate(700 0)" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif">
+    <text x="0" y="96" font-size="12" letter-spacing="3" fill="#7d8794">DELIVERY PATH</text>
+    <rect x="30" y="169" width="450" height="3" rx="1.5" fill="#2a323a"/>
+    <rect x="30" y="169" width="450" height="3" rx="1.5" fill="#a3e635" opacity="0.55"/>
+    <g fill="#101214" stroke-width="2.5">
+      <circle cx="30" cy="170" r="12" stroke="#a3e635"/><circle cx="170" cy="170" r="12" stroke="#a3e635"/>
+      <circle cx="330" cy="170" r="12" stroke="#38bdf8"/><circle cx="480" cy="170" r="12" stroke="#38bdf8"/>
+    </g>
+    <g font-size="14" fill="#e5e7eb" text-anchor="middle" font-weight="600">
+      <text x="30" y="212">GitHub</text><text x="170" y="212">Actions</text><text x="330" y="212">ACR</text><text x="480" y="212">AKS</text>
+    </g>
+    <g font-size="12" fill="#7d8794" text-anchor="middle">
+      <text x="30" y="232">source</text><text x="170" y="232">build</text><text x="330" y="232">images</text><text x="480" y="232">cluster</text>
+    </g>
+    <path d="M405 128 L405 150" stroke="#38bdf8" stroke-width="2" stroke-dasharray="3 5"/>
+    <rect x="345" y="96" width="120" height="30" rx="15" fill="#38bdf8" fill-opacity="0.1" stroke="#38bdf8" stroke-opacity="0.5"/>
+    <text x="405" y="116" text-anchor="middle" font-size="13" fill="#38bdf8">Terraform</text>
+  </g>
+</svg>

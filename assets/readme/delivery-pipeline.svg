@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 470" width="1240" height="470" role="img" aria-labelledby="t d">
+  <title id="t">CI and CD workflows</title>
+  <desc id="d">ci.yml lints, tests five services and builds eight images, pushing them to Azure Container Registry on push. cd.yml runs after CI succeeds on main or manually: it guards, applies manifests with image references patched, verifies each rollout and rolls back on failure. Terraform provisions the registry and the AKS cluster.</desc>
+  <rect width="1240" height="470" rx="14" fill="#0c0f11"/>
+  <rect x="0.5" y="0.5" width="1239" height="469" rx="13.5" fill="none" stroke="#ffffff" stroke-opacity="0.08"/>
+  <g font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif"><text x="36" y="44" font-size="13" letter-spacing="3" fill="#a3e635" font-weight="600">DELIVERY: GITHUB ACTIONS TO AZURE</text></g>
+  <text x="36" y="86" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13" font-weight="700" fill="#e5e7eb">CI</text><text x="62" y="86" font-family="Consolas, 'Courier New', monospace" font-size="12" fill="#7d8794">ci.yml · push to main or develop</text>
+  <rect x="36" y="98" width="262" height="82" rx="10" fill="#14181c" stroke="#a3e635" stroke-width="1.8"/>
+  <text x="50" y="124" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="15" font-weight="700" fill="#e5e7eb">Lint</text>
+  <text x="50" y="146" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" fill="#a1aab5">flake8, black, isort</text>
+  <text x="50" y="164" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" fill="#a1aab5">advisory, never fails</text>
+  <line x1="300" y1="139" x2="324" y2="139" stroke="#5d6a76" stroke-width="2" stroke-linecap="round"/>
+  <path d="M317 134 L324 139 L317 144" fill="none" stroke="#5d6a76" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="326" y="98" width="262" height="82" rx="10" fill="#14181c" stroke="#a3e635" stroke-width="1.8"/>
+  <text x="340" y="124" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="15" font-weight="700" fill="#e5e7eb">Test</text>
+  <text x="340" y="146" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" fill="#a1aab5">5 services in a matrix</text>
+  <text x="340" y="164" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" fill="#a1aab5">Postgres service container</text>
+  <line x1="590" y1="139" x2="614" y2="139" stroke="#5d6a76" stroke-width="2" stroke-linecap="round"/>
+  <path d="M607 134 L614 139 L607 144" fill="none" stroke="#5d6a76" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="616" y="98" width="262" height="82" rx="10" fill="#14181c" stroke="#a3e635" stroke-width="1.8"/>
+  <text x="630" y="124" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="15" font-weight="700" fill="#e5e7eb">Build</text>
+  <text x="630" y="146" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" fill="#a1aab5">8 Docker images</text>
+  <text x="630" y="164" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" fill="#a1aab5">Buildx with GHA cache</text>
+  <line x1="880" y1="139" x2="904" y2="139" stroke="#5d6a76" stroke-width="2" stroke-linecap="round"/>
+  <path d="M897 134 L904 139 L897 144" fill="none" stroke="#5d6a76" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="906" y="98" width="262" height="82" rx="10" fill="#14181c" stroke="#38bdf8" stroke-width="1.8"/>
+  <text x="920" y="124" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="15" font-weight="700" fill="#e5e7eb">Push</text>
+  <text x="920" y="146" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" fill="#a1aab5">Azure login, ACR login</text>
+  <text x="920" y="164" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" fill="#a1aab5">tag :latest (push only)</text>
+  <path d="M1037.0 180 V212" fill="none" stroke="#38bdf8" stroke-width="2" stroke-dasharray="3 5"/>
+  <rect x="942.0" y="212" width="190" height="34" rx="17" fill="#38bdf8" fill-opacity="0.1" stroke="#38bdf8" stroke-opacity="0.6"/>
+  <text x="1037.0" y="234" text-anchor="middle" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13" fill="#38bdf8">Azure Container Registry</text>
+  <text x="36" y="276" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13" font-weight="700" fill="#e5e7eb">CD</text><text x="66" y="276" font-family="Consolas, 'Courier New', monospace" font-size="12" fill="#7d8794">cd.yml · after CI succeeds on main, or run manually</text>
+  <rect x="36" y="290" width="210" height="82" rx="10" fill="#14181c" stroke="#a3e635" stroke-width="1.8"/>
+  <text x="50" y="316" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="15" font-weight="700" fill="#e5e7eb">Guard</text>
+  <text x="50" y="338" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" fill="#a1aab5">CI must have passed</text>
+  <text x="50" y="356" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" fill="#a1aab5">or manual dispatch</text>
+  <line x1="248" y1="331" x2="268" y2="331" stroke="#5d6a76" stroke-width="2" stroke-linecap="round"/>
+  <path d="M261 326 L268 331 L261 336" fill="none" stroke="#5d6a76" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="270" y="290" width="210" height="82" rx="10" fill="#14181c" stroke="#a3e635" stroke-width="1.8"/>
+  <text x="284" y="316" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="15" font-weight="700" fill="#e5e7eb">Apply base</text>
+  <text x="284" y="338" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" fill="#a1aab5">namespace, config,</text>
+  <text x="284" y="356" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" fill="#a1aab5">secrets, PVC</text>
+  <line x1="482" y1="331" x2="502" y2="331" stroke="#5d6a76" stroke-width="2" stroke-linecap="round"/>
+  <path d="M495 326 L502 331 L495 336" fill="none" stroke="#5d6a76" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="504" y="290" width="210" height="82" rx="10" fill="#14181c" stroke="#a3e635" stroke-width="1.8"/>
+  <text x="518" y="316" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="15" font-weight="700" fill="#e5e7eb">Deploy</text>
+  <text x="518" y="338" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" fill="#a1aab5">patch image refs, apply</text>
+  <text x="518" y="356" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" fill="#a1aab5">workloads, services, ingress, HPA</text>
+  <line x1="716" y1="331" x2="736" y2="331" stroke="#5d6a76" stroke-width="2" stroke-linecap="round"/>
+  <path d="M729 326 L736 331 L729 336" fill="none" stroke="#5d6a76" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="738" y="290" width="210" height="82" rx="10" fill="#14181c" stroke="#38bdf8" stroke-width="1.8"/>
+  <text x="752" y="316" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="15" font-weight="700" fill="#e5e7eb">Verify</text>
+  <text x="752" y="338" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" fill="#a1aab5">rollout status, 300 s</text>
+  <text x="752" y="356" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" fill="#a1aab5">per deployment</text>
+  <line x1="950" y1="331" x2="970" y2="331" stroke="#5d6a76" stroke-width="2" stroke-linecap="round"/>
+  <path d="M963 326 L970 331 L963 336" fill="none" stroke="#5d6a76" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="972" y="290" width="210" height="82" rx="10" fill="#14181c" stroke="#fb7185" stroke-width="1.8"/>
+  <text x="986" y="316" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="15" font-weight="700" fill="#e5e7eb">Roll back</text>
+  <text x="986" y="338" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" fill="#a1aab5">kubectl rollout undo</text>
+  <text x="986" y="356" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" fill="#a1aab5">if verify fails</text>
+  <text x="36" y="410" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" fill="#7d8794">Terraform provisions the resource group, VNet, ACR and AKS. A third workflow, ci-cd.yml, needs no secrets: lint, test, build without push, and docker compose config validation.</text>
+  <text x="36" y="432" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" fill="#7d8794">CD applies manifests with kubectl; infrastructure/ansible/playbooks/deploy-app.yml is the Ansible equivalent of the same deploy steps.</text>
+</svg>
