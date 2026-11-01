@@ -1,40 +1,47 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 340" width="1280" height="340" role="img" aria-labelledby="t d">
-  <title id="t">Sree Saaj platform DevOps</title>
-  <desc id="d">Delivery path of the Sree Saaj platform: source in GitHub, GitHub Actions CI, Azure Container Registry, Azure Kubernetes Service, with Terraform provisioning the Azure resources.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 380" width="1200" height="380" role="img" aria-labelledby="t">
+  <title id="t">Sree-SAAJ DevOps: A microservices platform on Azure: Docker, Terraform, Kubernetes manifests and GitHub Actions. Stack: docker, terraform, kubernetes, ansible.</title>
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#15181b"/><stop offset="1" stop-color="#0a0c0d"/></linearGradient>
-    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="#ffffff" stroke-opacity="0.035"/></pattern>
+    <pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" fill="none" stroke="#0f161e" stroke-width="1"/></pattern>
+    <radialGradient id="glow" cx="860" cy="196" r="270" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#3fe0ee" stop-opacity=".14"/><stop offset="1" stop-color="#3fe0ee" stop-opacity="0"/></radialGradient>
+    <linearGradient id="fade" x1="0" x2="1"><stop offset="0" stop-color="#07090c" stop-opacity=".92"/><stop offset=".5" stop-color="#07090c" stop-opacity=".55"/><stop offset="1" stop-color="#07090c" stop-opacity="0"/></linearGradient>
+    <clipPath id="frame"><rect width="1200" height="380" rx="14"/></clipPath>
   </defs>
-  <rect width="1280" height="340" rx="16" fill="url(#bg)"/>
-  <rect width="1280" height="340" rx="16" fill="url(#grid)"/>
-  <rect x="0.5" y="0.5" width="1279" height="339" rx="15.5" fill="none" stroke="#ffffff" stroke-opacity="0.08"/>
-  <g font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif">
-    <text x="72" y="96" font-size="15" letter-spacing="4" fill="#a3e635" font-weight="600">SREE SAAJ EVENTS &amp; CATERERS</text>
-    <text x="72" y="166" font-size="60" letter-spacing="1" fill="#f3f4f6" font-weight="700">Platform DevOps</text>
-    <text x="74" y="208" font-size="23" fill="#98a1ac">Microservices, containers and infrastructure as code.</text>
-    <g font-size="14" fill="#cdd2d8">
-      <rect x="72" y="244" width="86" height="30" rx="15" fill="#ffffff" fill-opacity="0.06" stroke="#ffffff" stroke-opacity="0.12"/><text x="115" y="264" text-anchor="middle">Docker</text>
-      <rect x="168" y="244" width="116" height="30" rx="15" fill="#ffffff" fill-opacity="0.06" stroke="#ffffff" stroke-opacity="0.12"/><text x="226" y="264" text-anchor="middle">Kubernetes</text>
-      <rect x="294" y="244" width="104" height="30" rx="15" fill="#ffffff" fill-opacity="0.06" stroke="#ffffff" stroke-opacity="0.12"/><text x="346" y="264" text-anchor="middle">Terraform</text>
-      <rect x="408" y="244" width="86" height="30" rx="15" fill="#ffffff" fill-opacity="0.06" stroke="#ffffff" stroke-opacity="0.12"/><text x="451" y="264" text-anchor="middle">Azure</text>
-    </g>
+  <style>
+    .sans { font-family: 'Inter', 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif; }
+    .mono { font-family: 'JetBrains Mono', 'SFMono-Regular', 'Cascadia Code', Consolas, 'Liberation Mono', Menlo, monospace; }
+    .face { fill: #0a1317; stroke: #2a6d75; stroke-width: 1.1; stroke-linejoin: round; }
+    .hl { fill: rgba(63, 224, 238, .16); stroke: #3fe0ee; stroke-width: 1.3; stroke-linejoin: round; }
+    .inner { fill: none; stroke: #15303a; stroke-width: 1; }
+    .side-l { fill: #070d10; stroke: #1a3a41; stroke-width: 1; stroke-linejoin: round; }
+    .side-r { fill: #091216; stroke: #1a3a41; stroke-width: 1; stroke-linejoin: round; }
+    .wire { stroke: #2a6d75; stroke-width: 1.3; fill: none; }
+    .bar { stroke: #3fe0ee; stroke-width: 1.8; stroke-linecap: round; fill: none; }
+    .spine { stroke: #26414a; stroke-width: 1; fill: none; }
+    .lead { stroke: #26414a; stroke-width: 1; fill: none; }
+    .name { font-size: 12.5px; fill: #c3ccd6; letter-spacing: .14em; }
+    .sub { font-size: 11.5px; fill: #56636f; letter-spacing: .02em; }
+  </style>
+  <g clip-path="url(#frame)">
+    <rect width="1200" height="380" fill="#07090c"/>
+    <rect width="1200" height="380" fill="url(#grid)"/>
+    <rect width="1200" height="380" fill="url(#glow)"/>
+    <rect width="700" height="380" fill="url(#fade)"/>
   </g>
-  <g transform="translate(700 0)" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif">
-    <text x="0" y="96" font-size="12" letter-spacing="3" fill="#7d8794">DELIVERY PATH</text>
-    <rect x="30" y="169" width="450" height="3" rx="1.5" fill="#2a323a"/>
-    <rect x="30" y="169" width="450" height="3" rx="1.5" fill="#a3e635" opacity="0.55"/>
-    <g fill="#101214" stroke-width="2.5">
-      <circle cx="30" cy="170" r="12" stroke="#a3e635"/><circle cx="170" cy="170" r="12" stroke="#a3e635"/>
-      <circle cx="330" cy="170" r="12" stroke="#38bdf8"/><circle cx="480" cy="170" r="12" stroke="#38bdf8"/>
-    </g>
-    <g font-size="14" fill="#e5e7eb" text-anchor="middle" font-weight="600">
-      <text x="30" y="212">GitHub</text><text x="170" y="212">Actions</text><text x="330" y="212">ACR</text><text x="480" y="212">AKS</text>
-    </g>
-    <g font-size="12" fill="#7d8794" text-anchor="middle">
-      <text x="30" y="232">source</text><text x="170" y="232">build</text><text x="330" y="232">images</text><text x="480" y="232">cluster</text>
-    </g>
-    <path d="M405 128 L405 150" stroke="#38bdf8" stroke-width="2" stroke-dasharray="3 5"/>
-    <rect x="345" y="96" width="120" height="30" rx="15" fill="#38bdf8" fill-opacity="0.1" stroke="#38bdf8" stroke-opacity="0.5"/>
-    <text x="405" y="116" text-anchor="middle" font-size="13" fill="#38bdf8">Terraform</text>
+  <rect x=".5" y=".5" width="1199" height="379" rx="14" fill="none" stroke="#1a222d"/>
+  <g stroke="#2a3542" stroke-width="1.2" fill="none"><path d="M28 44V28H44M1156 28H1172V44M1172 336V352H1156M44 352H28V336"/></g>
+  <path d="M64 340H640" stroke="#141b23"/>
+
+  <text class="mono" x="64" y="66" font-size="12" fill="#4a5664" letter-spacing=".12em">~/sree-saaj-devops-</text>
+  <text class="mono" x="64" y="128" font-size="13" fill="#3fe0ee" letter-spacing=".22em">CLOUD &#183; CONTAINERS &#183; CI/CD</text>
+  <text class="sans" x="62" y="190" font-size="58" font-weight="600" fill="#e8edf2" letter-spacing="-.01em" textLength="506" lengthAdjust="spacingAndGlyphs">Sree-SAAJ DevOps</text>
+  <text class="sans" x="64" y="232" font-size="20" fill="#8b97a5">A microservices platform on Azure: Docker, Terraform,</text>
+  <text class="sans" x="64" y="256" font-size="20" fill="#8b97a5">Kubernetes manifests and GitHub Actions.</text>
+  <g class="mono" font-size="13" fill="#5b6878">
+    <text x="64" y="297">stack&#160;&#160;&#160;<tspan fill="#9aa6b3">docker &#183; terraform &#183; kubernetes &#183; ansible</tspan></text>
+    <text x="64" y="319">repo&#160;&#160;&#160;&#160;<tspan fill="#9aa6b3">public &#183; azure (acr, aks)</tspan></text>
   </g>
+  <g class="mono" font-size="12" letter-spacing=".14em" fill="#3fe0ee"><circle cx="1068" cy="62" r="3.5" fill="#3fe0ee"/><text x="1136" y="66" text-anchor="end">PUBLIC</text></g>
+
+  <g><polygon points="742.2,295.0 860.0,324.9 860.0,331.9 742.2,302.0" class="side-l"/><polygon points="977.8,295.0 860.0,324.9 860.0,331.9 977.8,302.0" class="side-r"/><polygon points="860.0,265.1 977.8,295.0 860.0,324.9 742.2,295.0" class="face"/><polygon points="860.0,269.5 960.5,295.0 860.0,320.5 759.5,295.0" class="inner"/><circle cx="782.1" cy="295.4" r="3.6" fill="#0a1317" stroke="#3fe0ee" stroke-width="1.2"/><circle cx="797.6" cy="299.4" r="3.6" fill="#0a1317" stroke="#3fe0ee" stroke-width="1.2"/><circle cx="813.2" cy="303.4" r="3.6" fill="#0a1317" stroke="#3fe0ee" stroke-width="1.2"/><circle cx="828.8" cy="307.3" r="3.6" fill="#3fe0ee" stroke="#3fe0ee" stroke-width="1.2"/><path d="M782.1 295.4L828.8 307.3" class="wire"/><path d="M797.6 299.4L815.0 298.5" class="wire"/><circle cx="815.0" cy="298.5" r="3" fill="#0a1317" stroke="#3fe0ee" stroke-width="1.2"/><polygon points="804.6,259.1 820.2,263.0 820.2,291.0 804.6,287.1" class="side-l"/><polygon points="840.9,257.8 820.2,263.0 820.2,291.0 840.9,285.8" class="side-r"/><polygon points="825.4,253.8 840.9,257.8 820.2,263.0 804.6,259.1" class="face"/><path d="M823.6 255.1L835.8 258.2" class="inner"/><path d="M816.7 256.9L828.8 260.0" class="inner"/><polygon points="825.4,264.4 840.9,268.3 840.9,296.3 825.4,292.4" class="side-l"/><polygon points="861.7,263.0 840.9,268.3 840.9,296.3 861.7,291.0" class="side-r"/><polygon points="846.1,259.1 861.7,263.0 840.9,268.3 825.4,264.4" class="face"/><path d="M844.4 260.4L856.5 263.5" class="inner"/><path d="M837.5 262.2L849.6 265.2" class="inner"/><polygon points="846.1,269.6 861.7,273.6 861.7,301.6 846.1,297.6" class="side-l"/><polygon points="882.5,268.3 861.7,273.6 861.7,301.6 882.5,296.3" class="side-r"/><polygon points="866.9,264.4 882.5,268.3 861.7,273.6 846.1,269.6" class="face"/><path d="M865.2 265.7L877.3 268.8" class="inner"/><path d="M858.3 267.4L870.4 270.5" class="inner"/><path d="M815.0 298.5L830.6 294.6" class="bar"/><polygon points="844.4,174.0 898.1,187.7 898.1,191.7 844.4,178.0" class="side-l"/><polygon points="951.8,174.0 898.1,187.7 898.1,191.7 951.8,178.0" class="side-r"/><polygon points="898.1,160.4 951.8,174.0 898.1,187.7 844.4,174.0" class="face"/><polygon points="898.1,161.7 946.6,174.0 898.1,186.4 849.6,174.0" class="inner"/><polygon points="891.2,153.7 905.0,157.2 905.0,169.2 891.2,165.7" class="side-l"/><polygon points="913.7,155.0 905.0,157.2 905.0,169.2 913.7,167.0" class="side-r"/><polygon points="899.8,151.5 913.7,155.0 905.0,157.2 891.2,153.7" class="face"/><polygon points="879.1,156.8 892.9,160.3 892.9,172.3 879.1,168.8" class="side-l"/><polygon points="901.6,158.1 892.9,160.3 892.9,172.3 901.6,170.1" class="side-r"/><polygon points="887.7,154.6 901.6,158.1 892.9,160.3 879.1,156.8" class="face"/><polygon points="866.9,159.8 880.8,163.4 880.8,175.4 866.9,171.8" class="side-l"/><polygon points="889.4,161.2 880.8,163.4 880.8,175.4 889.4,173.2" class="side-r"/><polygon points="875.6,157.6 889.4,161.2 880.8,163.4 866.9,159.8" class="face"/><polygon points="854.8,162.9 868.7,166.4 868.7,178.4 854.8,174.9" class="side-l"/><polygon points="877.3,164.2 868.7,166.4 868.7,178.4 877.3,176.2" class="side-r"/><polygon points="863.5,160.7 877.3,164.2 868.7,166.4 854.8,162.9" class="face"/><polygon points="913.7,159.4 927.5,162.9 927.5,174.9 913.7,171.4" class="side-l"/><polygon points="936.2,160.7 927.5,162.9 927.5,174.9 936.2,172.7" class="side-r"/><polygon points="922.4,157.2 936.2,160.7 927.5,162.9 913.7,159.4" class="face"/><polygon points="901.6,162.5 915.4,166.0 915.4,178.0 901.6,174.5" class="side-l"/><polygon points="924.1,163.8 915.4,166.0 915.4,178.0 924.1,175.8" class="side-r"/><polygon points="910.2,160.3 924.1,163.8 915.4,166.0 901.6,162.5" class="face"/><polygon points="889.4,165.6 903.3,169.1 903.3,181.1 889.4,177.6" class="side-l"/><polygon points="912.0,166.9 903.3,169.1 903.3,181.1 912.0,178.9" class="side-r"/><polygon points="898.1,163.4 912.0,166.9 903.3,169.1 889.4,165.6" class="face"/><polygon points="877.3,168.6 891.2,172.2 891.2,184.2 877.3,180.6" class="side-l"/><polygon points="899.8,170.0 891.2,172.2 891.2,184.2 899.8,182.0" class="side-r"/><polygon points="886.0,166.4 899.8,170.0 891.2,172.2 877.3,168.6" class="face"/><path d="M840.1 257.5L861.7 178.0" class="spine" stroke-dasharray="2 4"/><path d="M860.9 262.8L872.1 180.7" class="spine" stroke-dasharray="2 4"/><path d="M881.6 268.1L882.5 183.3" class="spine" stroke-dasharray="2 4"/></g>
+  <g><path d="M930.1 181.1H944.1L992 178.1H996" class="lead"/><text x="1002" y="179.1" class="mono name">03&#160;&#160;CLUSTER</text><text x="1002" y="194.1" class="mono sub">aks · 8 workloads</text></g><g><path d="M878.1 281.0H892.1L992 278.0H996" class="lead"/><text x="1002" y="279.0" class="mono name">02&#160;&#160;IMAGES</text><text x="1002" y="294.0" class="mono sub">pushed to acr</text></g><g><path d="M834.8 307.3H848.8L992 322.0H996" class="lead"/><text x="1002" y="323.0" class="mono name">01&#160;&#160;CI</text><text x="1002" y="338.0" class="mono sub">actions · terraform</text></g>
 </svg>
